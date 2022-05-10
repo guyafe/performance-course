@@ -30,7 +30,7 @@ public class NeighborsMatrixGraph implements SimpleGraph {
     int lastBucketOffset = getBucketOffset(numberOfVertices);
     buildVertices(lastBucketEntry, lastBucketOffset);
     buildMatrix(lastBucketEntry, lastBucketOffset);
-    maxVertex = numberOfVertices - 1;
+    maxVertex = numberOfVertices;
   }
 
   private void buildMatrix(int lastBucketEntry, int lastBucketOffset) {
@@ -38,7 +38,7 @@ public class NeighborsMatrixGraph implements SimpleGraph {
   }
 
   private void buildVertices(int lastBucketEntry, int lastBucketOffset) {
-    vertices = new long[lastBucketEntry];
+    vertices = new long[lastBucketEntry + 1];
     for (int entry = 0; entry < lastBucketEntry; entry++) {
       vertices[entry] = -1L; //Filling with 1s
     }
@@ -66,8 +66,8 @@ public class NeighborsMatrixGraph implements SimpleGraph {
       int bucketOffset = getBucketOffset(vertex);
       increaseVerticesArray(bucketEntry);
       increaseNeighborsMatrix(bucketEntry, bucketOffset);
+      maxVertex = vertex;
     }
-    maxVertex = vertex;
   }
 
   private void increaseNeighborsMatrix(int bucketEntry, int bucketOffset) {
@@ -89,7 +89,13 @@ public class NeighborsMatrixGraph implements SimpleGraph {
   }
 
   @Override public void removeVertex(int vertex) {
-
+    if(!vertexExists(vertex)){
+      return; //Nothing to do
+    }
+    int bucketEntry = getBucketEntry(vertex);
+    long mask = createMask(vertex);
+    mask = ~mask; //Negating to remove the vertex
+    vertices[bucketEntry] &= mask;
   }
 
   @Override public boolean vertexExists(int vertex) {
