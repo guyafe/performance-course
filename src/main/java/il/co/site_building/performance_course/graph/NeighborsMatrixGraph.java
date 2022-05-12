@@ -8,7 +8,7 @@ public class NeighborsMatrixGraph implements SimpleGraph {
 
   private long[] vertices; //Bitwise array of all vertices. 1 in the relevant position indicates that the vertex exist.
   private long[][] neighborsMatrix;
-      //Bitwise neighbors matrix implementation. Assuming v1 < v2: 1 in the relevant position indicates that an edge exists.
+  //Bitwise neighbors matrix implementation. Assuming v1 < v2: 1 in the relevant position indicates that an edge exists.
   private int maxVertex;
 
   /**
@@ -34,7 +34,7 @@ public class NeighborsMatrixGraph implements SimpleGraph {
   }
 
   private void buildMatrix(int lastBucketEntry, int lastBucketOffset) {
-    neighborsMatrix = new long[lastBucketEntry * Long.SIZE + lastBucketOffset][lastBucketEntry];
+    neighborsMatrix = new long[lastBucketEntry * Long.SIZE + lastBucketOffset][lastBucketEntry + 1];
   }
 
   private void buildVertices(int lastBucketEntry, int lastBucketOffset) {
@@ -89,7 +89,7 @@ public class NeighborsMatrixGraph implements SimpleGraph {
   }
 
   @Override public void removeVertex(int vertex) {
-    if(!vertexExists(vertex)){
+    if (!vertexExists(vertex)) {
       return; //Nothing to do
     }
     int bucketEntry = getBucketEntry(vertex);
@@ -99,9 +99,9 @@ public class NeighborsMatrixGraph implements SimpleGraph {
   }
 
   @Override public boolean vertexExists(int vertex) {
-    if(vertex > maxVertex){
+    if (vertex > maxVertex) {
       return false;
-    } else{
+    } else {
       long mask = createMask(vertex);
       int bucketEntry = getBucketEntry(vertex);
       return (vertices[bucketEntry] & mask) != 0;
@@ -109,18 +109,46 @@ public class NeighborsMatrixGraph implements SimpleGraph {
   }
 
   @Override public void addEdge(int v1, int v2) {
-
+    handleEdge(v1, v2, ((rowIndex, bucketEntry, mask) -> {
+      neighborsMatrix[rowIndex][bucketEntry] |= mask;
+      return true;
+    }));
   }
 
   @Override public void removeEdge(int v1, int v2) {
+    handleEdge(v1, v2, ((rowIndex, bucketEntry, mask) -> {
+      neighborsMatrix[rowIndex][bucketEntry] &= ~mask;
+      return true;
+    }));
+  }
 
+  private boolean handleEdge(int v1, int v2, EntryMarker entryMarker) {
+    if (!vertexExists(v1) || !vertexExists(v2)) {
+      return false; //No vertices
+    }
+    int rowIndex;
+    int columnIndex;
+    if (v1 < v2) { //Upper triangular matrix
+      rowIndex = v1;
+      columnIndex = v2;
+    } else {
+      rowIndex = v2;
+      columnIndex = v1;
+    }
+    int bucketEntry = getBucketEntry(columnIndex);
+    long mask = createMask(columnIndex);
+    return entryMarker.markEntry(rowIndex, bucketEntry, mask);
   }
 
   @Override public boolean edgeExists(int v1, int v2) {
-    return false;
+    return handleEdge(v1, v2, (rowIndex, bucketEntry, mask) -> (neighborsMatrix[rowIndex][bucketEntry] & mask) != 0);
   }
 
-  private long createMask(int vertex){
+  private long createMask(int vertex) {
     return 1L << getBucketOffset(vertex);
+  }
+
+  private interface EntryMarker {
+    boolean markEntry(int rowIndex, int bucketEntry, long mask);
   }
 }

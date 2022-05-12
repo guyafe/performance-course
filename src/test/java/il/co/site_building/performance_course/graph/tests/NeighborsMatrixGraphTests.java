@@ -101,4 +101,56 @@ public class NeighborsMatrixGraphTests {
     Assertions.assertTrue(graph.vertexExists(7));
     Assertions.assertFalse(graph.vertexExists(1000));
   }
+
+  @Test
+  public void testAddEdge(){
+    NeighborsMatrixGraph graph = new NeighborsMatrixGraph(130);
+    graph.addEdge(0, 0);
+    graph.addEdge(0, 1);
+    graph.addEdge(2, 1);
+    graph.addEdge(129, 1);
+    graph.addEdge(150, 1000);
+    graph.addEdge(1, 2);
+    graph.addEdge(80, 90);
+    graph.addEdge(77, 77);
+    Assertions.assertTrue(graph.edgeExists(0,0));
+    Assertions.assertTrue(graph.edgeExists(0,1));
+    Assertions.assertFalse(graph.edgeExists(1,1));
+    Assertions.assertTrue(graph.edgeExists(2,1));
+    Assertions.assertTrue(graph.edgeExists(1,2));
+    Assertions.assertTrue(graph.edgeExists(1,129));
+    Assertions.assertTrue(graph.edgeExists(129,1));
+    Assertions.assertFalse(graph.edgeExists(150,1000));
+    Assertions.assertFalse(graph.edgeExists(1000,150));
+    Assertions.assertTrue(graph.edgeExists(80,90));
+    Assertions.assertTrue(graph.edgeExists(90,80));
+    Assertions.assertTrue(graph.edgeExists(77,77));
+    Assertions.assertFalse(graph.edgeExists(8,8));
+    Assertions.assertFalse(graph.edgeExists(80,8));
+    Assertions.assertFalse(graph.edgeExists(80,18));
+    Assertions.assertFalse(graph.edgeExists(18,129));
+    Assertions.assertFalse(graph.edgeExists(129,129));
+    Assertions.assertFalse(graph.edgeExists(95,95));
+    Assertions.assertFalse(graph.edgeExists(95,100));
+  }
+
+  @Test
+  public void testRemoveEdge(){
+    NeighborsMatrixGraph graph = new NeighborsMatrixGraph(130);
+    graph.addEdge(0, 0);
+    graph.addEdge(0, 1);
+    graph.addEdge(2, 1);
+    graph.addEdge(129, 1);
+    graph.addEdge(150, 1000);
+    graph.addEdge(80, 90);
+    graph.addEdge(77, 77);
+    Assertions.assertTrue(graph.edgeExists(1, 2));
+    Assertions.assertTrue(graph.edgeExists(2, 1));
+    graph.removeEdge(2, 1);
+    Assertions.assertFalse(graph.edgeExists(1, 2));
+    Assertions.assertFalse(graph.edgeExists(2, 1));
+    Assertions.assertFalse(graph.edgeExists(150, 1000));
+    graph.removeEdge(1, 129);
+    Assertions.assertFalse(graph.edgeExists(129, 1));
+  }
 }
