@@ -1,5 +1,8 @@
 package il.co.site_building.performance_course.graph;
 
+import java.util.Collection;
+import java.util.Set;
+
 /**
  * Simple Unweighted and Undirected Graph
  * Allows adding and removing vertices, adding and removing edges, checking if two vertices are connected, and creating connected components graphs.
@@ -47,4 +50,12 @@ public interface SimpleGraph {
    * @return True if these vertices are connected, false otherwise.
    */
   boolean edgeExists(int v1, int v2);
+
+  /**
+   * Creates all connected components sub graphs of this graph.
+   * @return A collection of the connected components.
+   */
+  Collection<SimpleGraph> createConnectedComponents();
+
+  Set<Integer> vertexSet();
 }

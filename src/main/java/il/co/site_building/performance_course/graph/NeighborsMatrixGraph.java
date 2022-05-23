@@ -1,5 +1,10 @@
 package il.co.site_building.performance_course.graph;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+
 /**
  * Distance matrix based graph.
  * The neighbors' matrix is based on bit level matrix;
@@ -8,7 +13,7 @@ public class NeighborsMatrixGraph implements SimpleGraph {
 
   private long[] vertices; //Bitwise array of all vertices. 1 in the relevant position indicates that the vertex exist.
   private long[][] neighborsMatrix;
-  //Bitwise neighbors matrix implementation. Assuming v1 < v2: 1 in the relevant position indicates that an edge exists.
+  //Bitwise neighbors matrix implementation. 1 in the relevant position indicates that an edge exists.
   private int maxVertex;
 
   /**
@@ -126,22 +131,78 @@ public class NeighborsMatrixGraph implements SimpleGraph {
     if (!vertexExists(v1) || !vertexExists(v2)) {
       return false; //No vertices
     }
-    int rowIndex;
-    int columnIndex;
-    if (v1 < v2) { //Upper triangular matrix
-      rowIndex = v1;
-      columnIndex = v2;
-    } else {
-      rowIndex = v2;
-      columnIndex = v1;
-    }
-    int bucketEntry = getBucketEntry(columnIndex);
-    long mask = createMask(columnIndex);
-    return entryMarker.markEntry(rowIndex, bucketEntry, mask);
+    return addEdgeInternal(v1, v2, entryMarker) || addEdgeInternal(v2, v1, entryMarker);
+  }
+
+  private boolean addEdgeInternal(int v1, int v2, EntryMarker entryMarker){
+    int bucketEntry = getBucketEntry(v2);
+    long mask = createMask(v2);
+    return entryMarker.markEntry(v1, bucketEntry, mask);
   }
 
   @Override public boolean edgeExists(int v1, int v2) {
+    if(v1 == v2){
+      return true;
+    }
     return handleEdge(v1, v2, (rowIndex, bucketEntry, mask) -> (neighborsMatrix[rowIndex][bucketEntry] & mask) != 0);
+  }
+
+  @Override public Collection<SimpleGraph> createConnectedComponents() {
+    Collection<SimpleGraph> connectedComponents = new HashSet<>();
+    long[] visited = new long[vertices.length]; // A bit wise boolean visited array used for DFS traversal
+    int firstExistingVertex = 0;
+    for (int nextVertex = firstExistingVertex; nextVertex < maxVertex; nextVertex++) {
+      if(!vertexDiscovered(nextVertex, visited)){
+        SimpleGraph connectedComponent = runDfs(nextVertex, visited);
+        connectedComponents.add(connectedComponent);
+      }
+    }
+    return connectedComponents;
+  }
+
+  @Override public Set<Integer> vertexSet() {
+    Set<Integer> vertexSet = new HashSet<>();
+    for (int vertex = 0; vertex < maxVertex; vertex++) {
+      if(vertexExists(vertex)){
+        vertexSet.add(vertex);
+      }
+    }
+    return vertexSet;
+  }
+
+  private boolean vertexDiscovered(int vertex, long[] bitSet) {
+    long mask = createMask(vertex);
+    int bucketEntry = getBucketEntry(vertex);
+    return (bitSet[bucketEntry] & mask) != 0;
+  }
+
+  private void setVertexDiscovered(int vertex, long[] bitSet) {
+    long mask = createMask(vertex);
+    int bucketEntry = getBucketEntry(vertex);
+    bitSet[bucketEntry] |= mask ;
+  }
+
+  private SimpleGraph runDfs(int firstVertex, long[] visited) {
+    SimpleGraph simpleGraph = new NeighborsMatrixGraph();
+    IntStack verticesStack = new IntStack(maxVertex);
+    verticesStack.push(firstVertex);
+    while (!verticesStack.isEmpty()) {
+      int vertex = verticesStack.pop();
+      long mask = createMask(vertex);
+      int bucketEntry = getBucketEntry(vertex);
+      boolean vertexDiscovered = (vertices[bucketEntry] & mask) != 0;
+      if (vertexDiscovered) {
+        continue;
+      }
+      setVertexDiscovered(vertex, visited);
+      for (int neighbor = 0; neighbor < maxVertex; neighbor++) {
+        if(edgeExists(vertex, neighbor) && !vertexDiscovered(neighbor, visited)){
+          verticesStack.push(neighbor);
+          simpleGraph.addEdge(vertex, neighbor);
+        }
+      }
+    }
+    return simpleGraph;
   }
 
   private long createMask(int vertex) {
@@ -151,4 +212,81 @@ public class NeighborsMatrixGraph implements SimpleGraph {
   private interface EntryMarker {
     boolean markEntry(int rowIndex, int bucketEntry, long mask);
   }
+
+  public boolean equalsJGraphImpl(JGraphSimpleGraphImpl other){
+    Set<Integer> otherVertexSet = other.vertexSet();
+    if(!otherVertexSet.equals(vertexSet())){
+      return false;
+    }
+    for (int vertex = 0; vertex < maxVertex; vertex++) {
+      for (int neighbor = 0; neighbor < maxVertex; neighbor++) {
+        if(vertexExists(vertex) && vertexExists(neighbor)){
+          if(edgeExists(vertex, neighbor) && !other.edgeExists(vertex, neighbor)){
+            return false;
+          } else if(!edgeExists(vertex, neighbor) && other.edgeExists(vertex, neighbor)){
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * A stack of integers
+   */
+  private static class IntStack {
+
+    private static final int INITIAL_SIZE = 8192;
+    int[] stack;
+    int nextEntry;
+
+    public IntStack(int size) {
+      int actualSize = size;
+      if (size == 0) {
+        actualSize = 1;
+      }
+      stack = new int[actualSize];
+      nextEntry = 0;
+    }
+
+    public IntStack() {
+      this(INITIAL_SIZE);
+    }
+
+    private void push(int value) {
+      if (nextEntry == stack.length) {
+        int[] newStack = new int[stack.length];
+        System.arraycopy(stack, 0, newStack, 0, stack.length);
+        stack = newStack;
+      }
+      stack[nextEntry] = value;
+      nextEntry++;
+    }
+
+    private int pop() {
+      nextEntry--;
+      return stack[nextEntry];
+    }
+
+    private boolean isEmpty() {
+      return nextEntry == 0;
+    }
+  }
+
+  public static NeighborsMatrixGraph createRandomGraph(Random random, int numberOfVertices, double loadFactor){
+    NeighborsMatrixGraph graph = new NeighborsMatrixGraph(numberOfVertices);
+    for (int vertex = 0; vertex < numberOfVertices; vertex++) {
+      for(int neighbor = vertex + 1; neighbor < numberOfVertices; neighbor++){
+        double lucky = random.nextDouble();
+        if(loadFactor <= lucky) {
+          graph.addVertex(vertex);
+          graph.addVertex(neighbor);
+          graph.addEdge(vertex, neighbor);
+        }
+      }
+    }
+    return graph;
+  }
+
 }
