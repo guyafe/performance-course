@@ -131,17 +131,22 @@ public class NeighborsMatrixGraph implements SimpleGraph {
     if (!vertexExists(v1) || !vertexExists(v2)) {
       return false; //No vertices
     }
-    return addEdgeInternal(v1, v2, entryMarker) || addEdgeInternal(v2, v1, entryMarker);
+    return addEdgeInternal(v1, v2, entryMarker);
   }
 
-  private boolean addEdgeInternal(int v1, int v2, EntryMarker entryMarker){
+  private boolean addEdgeInternal(int v1, int v2, EntryMarker entryMarker) {
+    if (v2 >= v1) {
+      int vTemp = v1;
+      v1 = v2;
+      v2 = vTemp;
+    }
     int bucketEntry = getBucketEntry(v2);
     long mask = createMask(v2);
     return entryMarker.markEntry(v1, bucketEntry, mask);
   }
 
   @Override public boolean edgeExists(int v1, int v2) {
-    if(v1 == v2){
+    if (v1 == v2) {
       return true;
     }
     return handleEdge(v1, v2, (rowIndex, bucketEntry, mask) -> (neighborsMatrix[rowIndex][bucketEntry] & mask) != 0);
@@ -152,7 +157,7 @@ public class NeighborsMatrixGraph implements SimpleGraph {
     long[] visited = new long[vertices.length]; // A bit wise boolean visited array used for DFS traversal
     int firstExistingVertex = 0;
     for (int nextVertex = firstExistingVertex; nextVertex < maxVertex; nextVertex++) {
-      if(!vertexDiscovered(nextVertex, visited)){
+      if (!vertexDiscovered(nextVertex, visited)) {
         SimpleGraph connectedComponent = runDfs(nextVertex, visited);
         connectedComponents.add(connectedComponent);
       }
@@ -163,11 +168,22 @@ public class NeighborsMatrixGraph implements SimpleGraph {
   @Override public Set<Integer> vertexSet() {
     Set<Integer> vertexSet = new HashSet<>();
     for (int vertex = 0; vertex < maxVertex; vertex++) {
-      if(vertexExists(vertex)){
+      if (vertexExists(vertex)) {
         vertexSet.add(vertex);
       }
     }
     return vertexSet;
+  }
+
+  @Override public void randomizeEdges(Random random, int maxVertex, double loadFactor) {
+    for (int vertex = 0; vertex < maxVertex; vertex++) {
+      for (int neighbor = vertex; neighbor < maxVertex; neighbor++) {
+        double lucky = random.nextDouble();
+        if (lucky <= loadFactor) {
+          addEdge(vertex, neighbor);
+        }
+      }
+    }
   }
 
   private boolean vertexDiscovered(int vertex, long[] bitSet) {
@@ -179,7 +195,7 @@ public class NeighborsMatrixGraph implements SimpleGraph {
   private void setVertexDiscovered(int vertex, long[] bitSet) {
     long mask = createMask(vertex);
     int bucketEntry = getBucketEntry(vertex);
-    bitSet[bucketEntry] |= mask ;
+    bitSet[bucketEntry] |= mask;
   }
 
   private SimpleGraph runDfs(int firstVertex, long[] visited) {
@@ -196,7 +212,7 @@ public class NeighborsMatrixGraph implements SimpleGraph {
       }
       setVertexDiscovered(vertex, visited);
       for (int neighbor = 0; neighbor < maxVertex; neighbor++) {
-        if(edgeExists(vertex, neighbor) && !vertexDiscovered(neighbor, visited)){
+        if (edgeExists(vertex, neighbor) && !vertexDiscovered(neighbor, visited)) {
           verticesStack.push(neighbor);
           simpleGraph.addEdge(vertex, neighbor);
         }
@@ -213,17 +229,17 @@ public class NeighborsMatrixGraph implements SimpleGraph {
     boolean markEntry(int rowIndex, int bucketEntry, long mask);
   }
 
-  public boolean equalsJGraphImpl(JGraphSimpleGraphImpl other){
+  public boolean equalsJGraphImpl(JGraphSimpleGraphImpl other) {
     Set<Integer> otherVertexSet = other.vertexSet();
-    if(!otherVertexSet.equals(vertexSet())){
+    if (!otherVertexSet.equals(vertexSet())) {
       return false;
     }
     for (int vertex = 0; vertex < maxVertex; vertex++) {
       for (int neighbor = 0; neighbor < maxVertex; neighbor++) {
-        if(vertexExists(vertex) && vertexExists(neighbor)){
-          if(edgeExists(vertex, neighbor) && !other.edgeExists(vertex, neighbor)){
+        if (vertexExists(vertex) && vertexExists(neighbor)) {
+          if (edgeExists(vertex, neighbor) && !other.edgeExists(vertex, neighbor)) {
             return false;
-          } else if(!edgeExists(vertex, neighbor) && other.edgeExists(vertex, neighbor)){
+          } else if (!edgeExists(vertex, neighbor) && other.edgeExists(vertex, neighbor)) {
             return false;
           }
         }
@@ -274,18 +290,9 @@ public class NeighborsMatrixGraph implements SimpleGraph {
     }
   }
 
-  public static NeighborsMatrixGraph createRandomGraph(Random random, int numberOfVertices, double loadFactor){
+  public static NeighborsMatrixGraph createRandomGraph(Random random, int numberOfVertices, double loadFactor) {
     NeighborsMatrixGraph graph = new NeighborsMatrixGraph(numberOfVertices);
-    for (int vertex = 0; vertex < numberOfVertices; vertex++) {
-      for(int neighbor = vertex + 1; neighbor < numberOfVertices; neighbor++){
-        double lucky = random.nextDouble();
-        if(loadFactor <= lucky) {
-          graph.addVertex(vertex);
-          graph.addVertex(neighbor);
-          graph.addEdge(vertex, neighbor);
-        }
-      }
-    }
+    graph.randomizeEdges(random, numberOfVertices, loadFactor);
     return graph;
   }
 

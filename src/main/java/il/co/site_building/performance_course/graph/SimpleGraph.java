@@ -1,6 +1,7 @@
 package il.co.site_building.performance_course.graph;
 
 import java.util.Collection;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -57,5 +58,17 @@ public interface SimpleGraph {
    */
   Collection<SimpleGraph> createConnectedComponents();
 
+  /**
+   * Collects all vertices into a set.
+   * @return A set of all vertices.
+   */
   Set<Integer> vertexSet();
+
+  /**
+   * Fills the graph with edges according to the load factor.
+   * @param random The random to fill according to.
+   * @param maxVertex Max vertex index to find edges.
+   * @param loadFactor Load factor: a number between 0 and 1, which indicates the probability of having an edge between two vertices.
+   */
+  void randomizeEdges(Random random, int maxVertex, double loadFactor);
 }

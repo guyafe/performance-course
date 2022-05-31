@@ -17,7 +17,25 @@ import org.jgrapht.graph.DefaultUndirectedGraph;
  */
 public class JGraphSimpleGraphImpl implements SimpleGraph {
 
-  private final Graph<Integer, DefaultEdge> graph = new DefaultUndirectedGraph<>(DefaultEdge.class);
+  private final Graph<Integer, DefaultEdge> graph;
+
+  /**
+   * Creates an empty graph.
+   */
+  public JGraphSimpleGraphImpl(){
+    graph = new DefaultUndirectedGraph<>(DefaultEdge.class);
+  }
+
+  /**
+   * Creates a graph where all edges between 0 (inc.) and numberOfEdges (exc.) exist
+   * @param numberOfVertices Number of vertices
+   */
+  public JGraphSimpleGraphImpl(int numberOfVertices){
+    graph = new DefaultUndirectedGraph<>(DefaultEdge.class);
+    for (int vertex = 0; vertex < numberOfVertices; vertex++) {
+      graph.addVertex(vertex);
+    }
+  }
 
   @Override public void addVertex(int vertex) {
     graph.addVertex(vertex);
@@ -55,31 +73,33 @@ public class JGraphSimpleGraphImpl implements SimpleGraph {
     return graph.vertexSet();
   }
 
+  @Override public void randomizeEdges(Random random, int maxVertex, double loadFactor) {
+    for (int vertex = 0; vertex < maxVertex; vertex++) {
+      for (int neighbor = vertex; neighbor < maxVertex; neighbor++) {
+        double lucky = random.nextDouble();
+        if (lucky <= loadFactor && graph.containsVertex(vertex) && graph.containsVertex(neighbor)) {
+          graph.addEdge(vertex, neighbor);
+        }
+      }
+    }
+  }
+
   private SimpleGraph createConnectedComponent(Set<Integer> connectivitySet) {
     SimpleGraph connectedComponent = new JGraphSimpleGraphImpl();
     for (Integer integer : connectivitySet) {
       connectedComponent.addVertex(integer);
     }
     graph.edgeSet().forEach(edge -> {
-      if(graph.containsEdge(edge)) {
+      if (graph.containsEdge(edge)) {
         connectedComponent.addEdge(graph.getEdgeSource(edge), graph.getEdgeTarget(edge));
       }
     });
     return connectedComponent;
   }
 
-  public static JGraphSimpleGraphImpl createRandomGraph(Random random, int numberOfVertices, double loadFactor){
-    JGraphSimpleGraphImpl graph = new JGraphSimpleGraphImpl();
-    for (int vertex = 0; vertex < numberOfVertices; vertex++) {
-      for(int neighbor = vertex + 1; neighbor < numberOfVertices; neighbor++){
-        double lucky = random.nextDouble();
-        if(loadFactor <= lucky) {
-          graph.addVertex(vertex);
-          graph.addVertex(neighbor);
-          graph.addEdge(vertex, neighbor);
-        }
-      }
-    }
+  public static JGraphSimpleGraphImpl createRandomGraph(Random random, int numberOfVertices, double loadFactor) {
+    JGraphSimpleGraphImpl graph = new JGraphSimpleGraphImpl(numberOfVertices);
+    graph.randomizeEdges(random, numberOfVertices, loadFactor);
     return graph;
   }
 

@@ -118,7 +118,7 @@ public class NeighborsMatrixGraphTests {
     graph.addEdge(77, 77);
     Assertions.assertTrue(graph.edgeExists(0, 0));
     Assertions.assertTrue(graph.edgeExists(0, 1));
-    Assertions.assertFalse(graph.edgeExists(1, 1));
+    Assertions.assertTrue(graph.edgeExists(1, 1));
     Assertions.assertTrue(graph.edgeExists(2, 1));
     Assertions.assertTrue(graph.edgeExists(1, 2));
     Assertions.assertTrue(graph.edgeExists(1, 129));
@@ -128,12 +128,12 @@ public class NeighborsMatrixGraphTests {
     Assertions.assertTrue(graph.edgeExists(80, 90));
     Assertions.assertTrue(graph.edgeExists(90, 80));
     Assertions.assertTrue(graph.edgeExists(77, 77));
-    Assertions.assertFalse(graph.edgeExists(8, 8));
+    Assertions.assertTrue(graph.edgeExists(8, 8));
     Assertions.assertFalse(graph.edgeExists(80, 8));
     Assertions.assertFalse(graph.edgeExists(80, 18));
     Assertions.assertFalse(graph.edgeExists(18, 129));
-    Assertions.assertFalse(graph.edgeExists(129, 129));
-    Assertions.assertFalse(graph.edgeExists(95, 95));
+    Assertions.assertTrue(graph.edgeExists(129, 129));
+    Assertions.assertTrue(graph.edgeExists(95, 95));
     Assertions.assertFalse(graph.edgeExists(95, 100));
   }
 

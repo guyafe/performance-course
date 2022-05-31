@@ -1,0 +1,3 @@
+Graph Name,Average Build Time,Build Time STD,Build Time STD Percent,5th Percentile Build Time,50 Percentile Build Time,95 Percentile Build Time,Average Connected Component Time,Connected Component Time STD,Connected Component Build Time STD (Percent),5th Percentile Connected Component Time,50 Percentile Connected Component Time,95 Percentile Connected Component Time
+Neighbors Matrix,0.0104443792,4.619640013906326E-4,4.4230872179615295,0.009852125,0.010459625,0.010979792,4.312332E-4,6.811965669287798E-5,15.796477797367636,3.74083E-4,4.226665E-4,6.13291E-4
+JGraph,0.1850719166,0.023944156771583864,12.937758041018668,0.164556167,0.17784731199999998,0.236163875,0.1983405125,0.04231228933510426,21.333155189414093,0.146776042,0.188631958,0.294339417
