@@ -4,7 +4,7 @@ package il.co.site_building.performance_course.graph;
  * A class representing an undirected and unweighted graph as a neighbors matrix graph.
  * Each edge is an integer number, and a negative value means that it doesn't exist.
  */
-public class UndirectedWeightedNeighborsMatrixGraph {
+public abstract class UndirectedWeightedNeighborsMatrixGraph {
 
   private long[] vertices; //Bitwise array of all vertices. 1 in the relevant position indicates that the vertex exist.
   private double[][] neighborsMatrix;
@@ -62,7 +62,7 @@ public class UndirectedWeightedNeighborsMatrixGraph {
     if(v1 == v2){
       return; //An edge is always 0 distance from itself.
     }
-    if(0 <= weight && weight <= Double.POSITIVE_INFINITY) {
+    if(0 <= weight) {
       if (v1 > v2) {
         int vTemp = v1;
         v1 = v2;
@@ -71,6 +71,8 @@ public class UndirectedWeightedNeighborsMatrixGraph {
       neighborsMatrix[v1][v2] = weight;
     }
   }
+
+  public abstract PathResult findShortestPath(int source, int dest);
 
   public boolean containsEdge(int v1, int v2){
     if(!vertexExists(v1) || !vertexExists(v2)){

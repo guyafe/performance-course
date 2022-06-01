@@ -1,5 +1,6 @@
 package il.co.site_building.performance_course.graph.tests;
 
+import il.co.site_building.performance_course.graph.PathResult;
 import il.co.site_building.performance_course.graph.UndirectedWeightedNeighborsMatrixGraph;
 
 import org.junit.jupiter.api.Assertions;
@@ -9,7 +10,11 @@ public class UndirectedWeightedNeighborsMatrixGraphTests {
 
   @Test
   public void testEmptyConstructor() {
-    UndirectedWeightedNeighborsMatrixGraph graph = new UndirectedWeightedNeighborsMatrixGraph();
+    UndirectedWeightedNeighborsMatrixGraph graph = new UndirectedWeightedNeighborsMatrixGraph() {
+      @Override public PathResult findShortestPath(int source, int dest) {
+        return null;
+      }
+    };
     Assertions.assertFalse(graph.vertexExists(0));
     Assertions.assertFalse(graph.vertexExists(1));
     Assertions.assertFalse(graph.vertexExists(10));
@@ -26,7 +31,11 @@ public class UndirectedWeightedNeighborsMatrixGraphTests {
   @Test
   public void testConstructorWithVertices() {
     int NUMBERS_OF_VERTICES = 10;
-    UndirectedWeightedNeighborsMatrixGraph graph = new UndirectedWeightedNeighborsMatrixGraph(NUMBERS_OF_VERTICES);
+    UndirectedWeightedNeighborsMatrixGraph graph = new UndirectedWeightedNeighborsMatrixGraph(NUMBERS_OF_VERTICES){
+      @Override public PathResult findShortestPath(int source, int dest) {
+        return null;
+      }
+    };
     Assertions.assertTrue(graph.vertexExists(0));
     Assertions.assertTrue(graph.vertexExists(1));
     Assertions.assertTrue(graph.vertexExists(9));
@@ -47,7 +56,11 @@ public class UndirectedWeightedNeighborsMatrixGraphTests {
 
   @Test
   public void testAddVertex() {
-    UndirectedWeightedNeighborsMatrixGraph graph = new UndirectedWeightedNeighborsMatrixGraph();
+    UndirectedWeightedNeighborsMatrixGraph graph = new UndirectedWeightedNeighborsMatrixGraph(){
+      @Override public PathResult findShortestPath(int source, int dest) {
+        return null;
+      }
+    };
     Assertions.assertFalse(graph.vertexExists(0));
     Assertions.assertFalse(graph.vertexExists(1));
     Assertions.assertFalse(graph.vertexExists(10));
@@ -67,7 +80,11 @@ public class UndirectedWeightedNeighborsMatrixGraphTests {
 
   @Test
   public void testRemoveVertex() {
-    UndirectedWeightedNeighborsMatrixGraph graph = new UndirectedWeightedNeighborsMatrixGraph(3);
+    UndirectedWeightedNeighborsMatrixGraph graph = new UndirectedWeightedNeighborsMatrixGraph(3){
+      @Override public PathResult findShortestPath(int source, int dest) {
+        return null;
+      }
+    };
     graph.removeVertex(3);
     graph.removeVertex(1);
     Assertions.assertEquals(Double.POSITIVE_INFINITY, graph.getEdgeWeight(0, 2));
@@ -78,7 +95,11 @@ public class UndirectedWeightedNeighborsMatrixGraphTests {
 
   @Test
   public void testSetEdge(){
-    UndirectedWeightedNeighborsMatrixGraph graph = new UndirectedWeightedNeighborsMatrixGraph(10);
+    UndirectedWeightedNeighborsMatrixGraph graph = new UndirectedWeightedNeighborsMatrixGraph(10){
+      @Override public PathResult findShortestPath(int source, int dest) {
+        return null;
+      }
+    };
     graph.setEdge(0, 0, 100.0);
     graph.setEdge(10, 10, 100.0);
     graph.setEdge(1, 10, 100.0);
