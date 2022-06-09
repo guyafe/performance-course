@@ -126,4 +126,5 @@ public class UndirectedWeightedNeighborsMatrixGraphTests {
     graph.setEdge(6, 1, Double.NaN);
     Assertions.assertEquals(100.0, graph.getEdgeWeight(1,6));
   }
+
 }

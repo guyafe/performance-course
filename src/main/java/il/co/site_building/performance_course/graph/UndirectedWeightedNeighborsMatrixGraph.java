@@ -1,20 +1,22 @@
 package il.co.site_building.performance_course.graph;
 
+import java.util.Arrays;
+
 /**
  * A class representing an undirected and unweighted graph as a neighbors matrix graph.
  * Each edge is an integer number, and a negative value means that it doesn't exist.
  */
 public abstract class UndirectedWeightedNeighborsMatrixGraph {
 
-  private long[] vertices; //Bitwise array of all vertices. 1 in the relevant position indicates that the vertex exist.
-  private double[][] neighborsMatrix;
+  protected long[] vertices; //Bitwise array of all vertices. 1 in the relevant position indicates that the vertex exist.
+  protected double[][] neighborsMatrix;
   //Neighbors matrix implementation. Each value indicates the weight of an edge. Negative value indicates that the edge doesn't exist.
-  private int maxVertex;
+  protected int maxVertex;
 
   /**
    * Initializes an empty distance matrix with minimum of 1 entry
    */
-  public UndirectedWeightedNeighborsMatrixGraph() {
+  protected UndirectedWeightedNeighborsMatrixGraph() {
     vertices = new long[0];
     neighborsMatrix = new double[0][0];
     maxVertex = -1;
@@ -25,24 +27,26 @@ public abstract class UndirectedWeightedNeighborsMatrixGraph {
    *
    * @param numberOfVertices All existing vertices in the graph
    */
-  public UndirectedWeightedNeighborsMatrixGraph(int numberOfVertices) {
+  protected UndirectedWeightedNeighborsMatrixGraph(int numberOfVertices) {
     int lastBucketEntry = getBucketEntry(numberOfVertices);
     int lastBucketOffset = getBucketOffset(numberOfVertices);
     buildVertices(lastBucketEntry, lastBucketOffset);
     neighborsMatrix = new double[numberOfVertices][numberOfVertices];
     for(int row = 0; row < numberOfVertices; row++){
-      for(int column = row + 1; column < numberOfVertices; column++){
-        neighborsMatrix[row][column] = Double.POSITIVE_INFINITY;
-      }
+      Arrays.fill(neighborsMatrix[row], Double.POSITIVE_INFINITY);
     }
     maxVertex = numberOfVertices;
   }
 
   public void addVertex(int vertex) {
     verifyEntryExists(vertex);
+    addVertex(vertex, vertices);
+  }
+
+  protected void addVertex(int vertex, long[] array) {
     int bucketEntry = getBucketEntry(vertex);
     long mask = createMask(vertex);
-    vertices[bucketEntry] |= mask;
+    array[bucketEntry] |= mask;
   }
 
   public void removeVertex(int vertex) {
@@ -90,6 +94,9 @@ public abstract class UndirectedWeightedNeighborsMatrixGraph {
     if(!vertexExists(v1) || !vertexExists(v2)){
       return Double.NaN;
     }
+    if(v1==v2){
+      return 0;
+    }
     if (v1 > v2) {
       int vTemp = v1;
       v1 = v2;
@@ -102,10 +109,14 @@ public abstract class UndirectedWeightedNeighborsMatrixGraph {
     if (vertex > maxVertex) {
       return false;
     } else {
-      long mask = createMask(vertex);
-      int bucketEntry = getBucketEntry(vertex);
-      return (vertices[bucketEntry] & mask) != 0;
+      return vertexInArray(vertex, vertices);
     }
+  }
+
+  protected boolean vertexInArray(int vertex, long[] array){
+    long mask = createMask(vertex);
+    int bucketEntry = getBucketEntry(vertex);
+    return (array[bucketEntry] & mask) != 0;
   }
 
   private void verifyEntryExists(int vertex) {
