@@ -59,7 +59,23 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
         neighborInShortestPathSet = ((shortestPathSet[bucketEntry] & mask) != 0);
         if (neighbor != currentNeighbor && neighborExists && !neighborInShortestPathSet) {
           double distance;
-          if (!vertexExists(currentNeighbor) || !vertexExists(neighbor)) {
+          boolean currentNeighborExists2;
+          if (currentNeighbor > maxVertex) {
+            currentNeighborExists2 = false;
+          } else {
+            long currentNeighborMask2 = 1L << (currentNeighbor % Long.SIZE);
+            int currentNeighborBucketEntry2 = currentNeighbor / Long.SIZE;
+            currentNeighborExists2 = ((vertices[currentNeighborBucketEntry2] & currentNeighborMask2) != 0);
+          }
+          boolean neighborExists2;
+          if (neighbor > maxVertex) {
+            neighborExists2 = false;
+          } else {
+            long neighborMask2 = 1L << (neighbor % Long.SIZE);
+            int neighborBucketEntry2 = neighbor / Long.SIZE;
+            neighborExists2 = ((vertices[neighborBucketEntry2] & neighborMask2) != 0);
+          }
+          if (!currentNeighborExists2 || !neighborExists2) {
             distance = Double.NaN;
           } else if (currentNeighbor == neighbor) {
             distance = 0;
