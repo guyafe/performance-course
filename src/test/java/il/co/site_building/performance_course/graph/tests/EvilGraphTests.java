@@ -34,6 +34,8 @@ public class EvilGraphTests {
         Assertions.assertEquals(graph.getEdgeWeight(vertex, neighbor), evilGraph.getEdgeWeight(vertex, neighbor));
       }
     }
+    Assertions.assertEquals(graph.findShortestPath(0, numberOfVertices - 1),
+                            evilGraph.findShortestPath(0, numberOfVertices - 1));
   }
 
 

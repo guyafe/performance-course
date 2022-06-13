@@ -35,151 +35,26 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
         new int[maxVertex + 1]; //previousNodes[j] is the node that comes before j in the shortest path from source
     Arrays.fill(previousNodes, UNDEFINED);
     long[] shortestPathSet = new long[maxVertex / Long.SIZE + 1];
-    int bucketEntry = source / Long.SIZE;
-    long mask = 1L << (source % Long.SIZE);
-    shortestPathSet[bucketEntry] |= mask;
+    addVertex(source, shortestPathSet);
     distances[source] = 0.0;
     previousNodes[source] = source;
     int currentNeighbor = source;
     while (true) {
-      int closestNeighbor = NOT_FOUND;
-      double minDistance = Double.POSITIVE_INFINITY;
-      for (int neighbor = 0; neighbor < distances.length; neighbor++) {
-        boolean neighborExists;
-        if (neighbor > maxVertex) {
-          neighborExists = false;
-        } else {
-          long neighborMask = 1L << (neighbor % Long.SIZE);
-          int neighborBucketEntry = neighbor / Long.SIZE;
-          neighborExists = (vertices[neighborBucketEntry] & neighborMask) != 0;
-        }
-        boolean neighborInShortestPathSet;
-        long neighborMask = 1L << (neighbor % Long.SIZE);
-        int neighborBucketEntry = neighbor / Long.SIZE;
-        neighborInShortestPathSet = (shortestPathSet[neighborBucketEntry] & neighborMask) != 0;
-        if (neighbor != currentNeighbor && neighborExists && !neighborInShortestPathSet) {
-          double distance;
-          boolean currentNeighborExists;
-          if (currentNeighbor > maxVertex) {
-            currentNeighborExists = false;
-          } else {
-            long currentNeighborMask = 1L << (currentNeighbor % Long.SIZE);
-            int currentNeighborBucketEntry = currentNeighbor / Long.SIZE;
-            currentNeighborExists = ((vertices[currentNeighborBucketEntry] & currentNeighborMask) != 0);
-          }
-          boolean neighborExists2;
-          if (neighbor > maxVertex) {
-            neighborExists2 = false;
-          } else {
-            long neighborMask2 = 1L << (neighbor % Long.SIZE);
-            int neighborBucketEntry2 = neighbor / Long.SIZE;
-            neighborExists2 = ((vertices[neighborBucketEntry2] & neighborMask2) != 0);
-          }
-          if (!currentNeighborExists || !neighborExists2) {
-            distance = Double.NaN;
-          } else if (currentNeighbor == neighbor) {
-            distance = 0;
-          } else {
-            if (currentNeighbor > neighbor) {
-              int vTemp = currentNeighbor;
-              currentNeighbor = neighbor;
-              neighbor = vTemp;
-            }
-            distance = neighborsMatrix[currentNeighbor][neighbor];
-          }
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestNeighbor = neighbor;
-          }
-        }
-      }
+      int closestNeighbor = findClosestNeighbor(distances, shortestPathSet, currentNeighbor);
       if (closestNeighbor == NOT_FOUND) {
         break;
       }
-      for (int neighbor = 0; neighbor < maxVertex + 1; neighbor++) {
-        boolean neighborExists;
-        if (neighbor > maxVertex) {
-          neighborExists = false;
-        } else {
-          long neighborMask = 1L << (neighbor % Long.SIZE);
-          int neighborBucketEntry = neighbor / Long.SIZE;
-          neighborExists = ((vertices[neighborBucketEntry] & neighborMask) != 0);
-        }
-        boolean containsEdge;
-        boolean currentNeighborExists;
-        if (currentNeighbor > maxVertex) {
-          currentNeighborExists = false;
-        } else {
-          long currentNeighborMask = 1L << (currentNeighbor % Long.SIZE);
-          int currentNeighborBucketEntry = currentNeighbor / Long.SIZE;
-          currentNeighborExists = ((vertices[currentNeighborBucketEntry] & currentNeighborMask) != 0);
-        }
-        boolean neighborExists2;
-        if (neighbor > maxVertex) {
-          neighborExists2 = false;
-        } else {
-          long neighborMask2 = 1L << (neighbor % Long.SIZE);
-          int neighborBucketEntry2 = neighbor / Long.SIZE;
-          neighborExists2 = (vertices[neighborBucketEntry2] & neighborMask2) != 0;
-        }
-        if (!currentNeighborExists || !neighborExists2) {
-          containsEdge = false;
-        } else {
-          if (currentNeighbor > neighbor) {
-            int vTemp = currentNeighbor;
-            currentNeighbor = neighbor;
-            neighbor = vTemp;
-          }
-          containsEdge = neighborsMatrix[currentNeighbor][neighbor] < Double.POSITIVE_INFINITY;
-        }
-        boolean neighborInShortestPathSet;
-        long neighborMask = 1L << (neighbor % Long.SIZE);
-        int neighborBucketEntry = neighbor / Long.SIZE;
-        neighborInShortestPathSet = (shortestPathSet[neighborBucketEntry] & neighborMask) != 0;
-        if (neighborExists && containsEdge && !neighborInShortestPathSet) {
-          double alternativeDistance;
-          boolean currentNeighborExists3;
-          if (currentNeighbor > maxVertex) {
-            currentNeighborExists3 = false;
-          } else {
-            long currentNeighborMask3 = 1L << (currentNeighbor % Long.SIZE);
-            int currentNeighborBucketEntry3 = currentNeighbor / Long.SIZE;
-            currentNeighborExists3 = ((vertices[currentNeighborBucketEntry3] & currentNeighborMask3) != 0);
-          }
-          boolean neighborExists3;
-          if (neighbor > maxVertex) {
-            neighborExists3 = false;
-          } else {
-            long neighborMask3 = 1L << (neighbor % Long.SIZE);
-            int neighborBucketEntry3 = neighbor / Long.SIZE;
-            neighborExists3 = ((vertices[neighborBucketEntry3] & neighborMask3) != 0);
-          }
-          if (!currentNeighborExists3 || !neighborExists3) {
-            alternativeDistance = Double.NaN;
-          } else if (currentNeighbor == neighbor) {
-            alternativeDistance = 0;
-          } else {
-            if (currentNeighbor > neighbor) {
-              int vTemp = currentNeighbor;
-              currentNeighbor = neighbor;
-              neighbor = vTemp;
-            }
-            alternativeDistance = neighborsMatrix[currentNeighbor][neighbor];
-          }
-          if (alternativeDistance < distances[neighbor]) {
-            distances[neighbor] = alternativeDistance;
-            previousNodes[neighbor] = currentNeighbor;
-          }
-        }
-      }
-      int bucketEntry4 = currentNeighbor / Long.SIZE;
-      long mask4 = 1L << (currentNeighbor % Long.SIZE);
-      shortestPathSet[bucketEntry4] |= mask4;
+      updateNeighborsDistances(currentNeighbor, distances, shortestPathSet, previousNodes);
+      addVertex(currentNeighbor, shortestPathSet);
       if (closestNeighbor == dest) {
         break;
       }
       currentNeighbor = closestNeighbor;
     }
+    return buildResult(source, dest, distances, previousNodes);
+  }
+
+  private PathResult buildResult(int source, int dest, double[] distances, int[] previousNodes) {
     PathResult result = new PathResult();
     result.distances = distances[dest];
     if (distances[dest] < Double.POSITIVE_INFINITY) {
@@ -191,6 +66,35 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
       result.path.add(source);
     }
     return result;
+  }
+
+  private void updateNeighborsDistances(int currentNeighbor, double[] distances, long[] shortestPathSet,
+                                        int[] previousNodes) {
+    for (int neighbor = 0; neighbor < maxVertex + 1; neighbor++) {
+      if (vertexExists(neighbor) && containsEdge(currentNeighbor, neighbor) &&
+          !vertexInArray(neighbor, shortestPathSet)) {
+        double alternativeDistance = distances[currentNeighbor] + getEdgeWeight(neighbor, currentNeighbor);
+        if (alternativeDistance < distances[neighbor]) {
+          distances[neighbor] = alternativeDistance;
+          previousNodes[neighbor] = currentNeighbor;
+        }
+      }
+    }
+  }
+
+  private int findClosestNeighbor(double[] distances, long[] shortestPathSet, int currentNeighbor) {
+    int closestNeighbor = NOT_FOUND;
+    double minDistance = Double.POSITIVE_INFINITY;
+    for (int neighbor = 0; neighbor < distances.length; neighbor++) {
+      if (neighbor != currentNeighbor && vertexExists(neighbor) && !vertexInArray(neighbor, shortestPathSet)) {
+        double distance = getEdgeWeight(currentNeighbor, neighbor);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestNeighbor = neighbor;
+        }
+      }
+    }
+    return closestNeighbor;
   }
 
   /**
