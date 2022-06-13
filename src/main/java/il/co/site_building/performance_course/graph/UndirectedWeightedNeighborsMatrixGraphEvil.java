@@ -53,7 +53,11 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
           int neighborBucketEntry = neighbor / Long.SIZE;
           neighborExists = ((vertices[neighborBucketEntry] & neighborMask) != 0);
         }
-        if (neighbor != currentNeighbor && neighborExists && !vertexInArray(neighbor, shortestPathSet)) {
+        boolean neighborInShortestPathSet;
+        long mask = 1L << neighbor % Long.SIZE;
+        int bucketEntry = neighbor / Long.SIZE;
+        neighborInShortestPathSet =  ((shortestPathSet[bucketEntry] & mask) != 0);
+        if (neighbor != currentNeighbor && neighborExists && !neighborInShortestPathSet) {
           double distance = getEdgeWeight(currentNeighbor, neighbor);
           if (distance < minDistance) {
             minDistance = distance;
