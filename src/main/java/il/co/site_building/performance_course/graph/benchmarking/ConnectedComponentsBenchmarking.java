@@ -1,4 +1,8 @@
-package il.co.site_building.performance_course.graph;
+package il.co.site_building.performance_course.graph.benchmarking;
+
+import il.co.site_building.performance_course.graph.data_structures.GraphBenchmarkStatistics;
+import il.co.site_building.performance_course.graph.JGraphSimpleGraphImpl;
+import il.co.site_building.performance_course.graph.NeighborsMatrixGraph;
 
 import java.io.FileWriter;
 import java.io.IOException;
