@@ -180,10 +180,6 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
       }
       currentNeighbor = closestNeighbor;
     }
-    return buildResult(source, dest, distances, previousNodes);
-  }
-
-  private PathResult buildResult(int source, int dest, double[] distances, int[] previousNodes) {
     PathResult result = new PathResult();
     result.distances = distances[dest];
     if (distances[dest] < Double.POSITIVE_INFINITY) {
@@ -195,35 +191,6 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
       result.path.add(source);
     }
     return result;
-  }
-
-  private void updateNeighborsDistances(int currentNeighbor, double[] distances, long[] shortestPathSet,
-                                        int[] previousNodes) {
-    for (int neighbor = 0; neighbor < maxVertex + 1; neighbor++) {
-      if (vertexExists(neighbor) && containsEdge(currentNeighbor, neighbor) &&
-          !vertexInArray(neighbor, shortestPathSet)) {
-        double alternativeDistance = distances[currentNeighbor] + getEdgeWeight(neighbor, currentNeighbor);
-        if (alternativeDistance < distances[neighbor]) {
-          distances[neighbor] = alternativeDistance;
-          previousNodes[neighbor] = currentNeighbor;
-        }
-      }
-    }
-  }
-
-  private int findClosestNeighbor(double[] distances, long[] shortestPathSet, int currentNeighbor) {
-    int closestNeighbor = NOT_FOUND;
-    double minDistance = Double.POSITIVE_INFINITY;
-    for (int neighbor = 0; neighbor < distances.length; neighbor++) {
-      if (neighbor != currentNeighbor && vertexExists(neighbor) && !vertexInArray(neighbor, shortestPathSet)) {
-        double distance = getEdgeWeight(currentNeighbor, neighbor);
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestNeighbor = neighbor;
-        }
-      }
-    }
-    return closestNeighbor;
   }
 
   /**
