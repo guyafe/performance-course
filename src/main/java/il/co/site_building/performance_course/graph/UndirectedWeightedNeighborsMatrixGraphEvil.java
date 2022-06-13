@@ -96,7 +96,24 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
       if (closestNeighbor == NOT_FOUND) {
         break;
       }
-      updateNeighborsDistances(currentNeighbor, distances, shortestPathSet, previousNodes);
+      for (int neighbor = 0; neighbor < maxVertex + 1; neighbor++) {
+        boolean neighborExists;
+        if (neighbor > maxVertex) {
+          neighborExists = false;
+        } else {
+          long neighborMask = 1L << (neighbor % Long.SIZE);
+          int neighborBucketEntry = neighbor / Long.SIZE;
+          neighborExists = ((vertices[neighborBucketEntry] & neighborMask) != 0);
+        }
+        if (neighborExists && containsEdge(currentNeighbor, neighbor) &&
+            !vertexInArray(neighbor, shortestPathSet)) {
+          double alternativeDistance = distances[currentNeighbor] + getEdgeWeight(neighbor, currentNeighbor);
+          if (alternativeDistance < distances[neighbor]) {
+            distances[neighbor] = alternativeDistance;
+            previousNodes[neighbor] = currentNeighbor;
+          }
+        }
+      }
       addVertex(currentNeighbor, shortestPathSet);
       if (closestNeighbor == dest) {
         break;
