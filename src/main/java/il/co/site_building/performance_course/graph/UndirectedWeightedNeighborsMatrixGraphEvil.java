@@ -35,12 +35,32 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
         new int[maxVertex + 1]; //previousNodes[j] is the node that comes before j in the shortest path from source
     Arrays.fill(previousNodes, UNDEFINED);
     long[] shortestPathSet = new long[maxVertex / Long.SIZE + 1];
-    addVertex(source, shortestPathSet);
+    int sourceBucketEntry = source / Long.SIZE;
+    long sourceMask = 1L << (source % Long.SIZE);
+    shortestPathSet[sourceBucketEntry] |= sourceMask;
     distances[source] = 0.0;
     previousNodes[source] = source;
     int currentNeighbor = source;
     while (true) {
-      int closestNeighbor = findClosestNeighbor(distances, shortestPathSet, currentNeighbor);
+      int closestNeighbor = NOT_FOUND;
+      double minDistance = Double.POSITIVE_INFINITY;
+      for (int neighbor = 0; neighbor < distances.length; neighbor++) {
+        boolean neighborExists;
+        if (neighbor > maxVertex) {
+          neighborExists = false;
+        } else {
+          long neighborMask = 1L << (neighbor % Long.SIZE);
+          int neighborBucketEntry = neighbor / Long.SIZE;
+          neighborExists = ((vertices[neighborBucketEntry] & neighborMask) != 0);
+        }
+        if (neighbor != currentNeighbor && neighborExists && !vertexInArray(neighbor, shortestPathSet)) {
+          double distance = getEdgeWeight(currentNeighbor, neighbor);
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestNeighbor = neighbor;
+          }
+        }
+      }
       if (closestNeighbor == NOT_FOUND) {
         break;
       }
