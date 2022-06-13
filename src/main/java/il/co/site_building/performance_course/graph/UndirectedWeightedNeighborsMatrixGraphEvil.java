@@ -136,7 +136,11 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
           }
           containsEdge = neighborsMatrix[tempCurrentNeighbor][tempNeighbor] < Double.POSITIVE_INFINITY;
         }
-        if (neighborExists && containsEdge && !vertexInArray(neighbor, shortestPathSet)) {
+        boolean neighborInShortestPathSet;
+        long mask = 1L << neighbor % Long.SIZE;
+        int bucketEntry = neighbor / Long.SIZE;
+        neighborInShortestPathSet = ((shortestPathSet[bucketEntry] & mask) != 0);
+        if (neighborExists && containsEdge && !neighborInShortestPathSet) {
           double alternativeDistance = distances[currentNeighbor] + getEdgeWeight(neighbor, currentNeighbor);
           if (alternativeDistance < distances[neighbor]) {
             distances[neighbor] = alternativeDistance;
