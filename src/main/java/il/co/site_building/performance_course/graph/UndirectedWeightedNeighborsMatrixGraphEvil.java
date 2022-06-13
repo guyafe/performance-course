@@ -47,18 +47,46 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
       for (int neighbor = 0; neighbor < distances.length; neighbor++) {
         boolean neighborExists;
         if (neighbor > maxVertex) {
-          neighborExists =  false;
+          neighborExists = false;
         } else {
           long neighborMask = 1L << (neighbor % Long.SIZE);
           int neighborBucketEntry = neighbor / Long.SIZE;
-          neighborExists =  (vertices[neighborBucketEntry] & neighborMask) != 0;
+          neighborExists = (vertices[neighborBucketEntry] & neighborMask) != 0;
         }
         boolean neighborInShortestPathSet;
         long neighborMask = 1L << (neighbor % Long.SIZE);
         int neighborBucketEntry = neighbor / Long.SIZE;
-        neighborInShortestPathSet =  (shortestPathSet[neighborBucketEntry] & neighborMask) != 0;
+        neighborInShortestPathSet = (shortestPathSet[neighborBucketEntry] & neighborMask) != 0;
         if (neighbor != currentNeighbor && neighborExists && !neighborInShortestPathSet) {
-          double distance = getEdgeWeight(currentNeighbor, neighbor);
+          double distance;
+          boolean currentNeighborExists;
+          if (currentNeighbor > maxVertex) {
+            currentNeighborExists = false;
+          } else {
+            long currentNeighborMask = 1L << (currentNeighbor % Long.SIZE);
+            int currentNeighborBucketEntry = currentNeighbor / Long.SIZE;
+            currentNeighborExists = ((vertices[currentNeighborBucketEntry] & currentNeighborMask) != 0);
+          }
+          boolean neighborExists2;
+          if (neighbor > maxVertex) {
+            neighborExists2 = false;
+          } else {
+            long neighborMask2 = 1L << (neighbor % Long.SIZE);
+            int neighborBucketEntry2 = neighbor / Long.SIZE;
+            neighborExists2 = ((vertices[neighborBucketEntry2] & neighborMask2) != 0);
+          }
+          if (!currentNeighborExists || !neighborExists2) {
+            distance = Double.NaN;
+          } else if (currentNeighbor == neighbor) {
+            distance = 0;
+          } else {
+            if (currentNeighbor > neighbor) {
+              int vTemp = currentNeighbor;
+              currentNeighbor = neighbor;
+              neighbor = vTemp;
+            }
+            distance = neighborsMatrix[currentNeighbor][neighbor];
+          }
           if (distance < minDistance) {
             minDistance = distance;
             closestNeighbor = neighbor;
@@ -123,9 +151,10 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
 
   /**
    * Creates a random graph with the given size and load factor. The edges' weights are unigormally distributed between 0.0-1.0.
-   * @param random Random generator
+   *
+   * @param random           Random generator
    * @param numberOfVertices Size of the graph
-   * @param loadFactor Load factor. Represents the probability of having an edge between two vertices.
+   * @param loadFactor       Load factor. Represents the probability of having an edge between two vertices.
    * @return The generated graph.
    */
   public static UndirectedWeightedNeighborsMatrixGraphEvil generateRandomGraph(Random random,
@@ -133,8 +162,8 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
                                                                                double loadFactor) {
     UndirectedWeightedNeighborsMatrixGraphEvil graph = new UndirectedWeightedNeighborsMatrixGraphEvil(numberOfVertices);
     for (int source = 0; source < numberOfVertices; source++) {
-      for(int dest = source + 1; dest < numberOfVertices; dest++){
-        if(random.nextDouble() < loadFactor){
+      for (int dest = source + 1; dest < numberOfVertices; dest++) {
+        if (random.nextDouble() < loadFactor) {
           graph.setEdge(source, dest, random.nextDouble());
         }
       }
