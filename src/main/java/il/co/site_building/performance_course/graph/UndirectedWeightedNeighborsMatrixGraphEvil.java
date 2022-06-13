@@ -107,8 +107,36 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
           int neighborBucketEntry = neighbor / Long.SIZE;
           neighborExists = ((vertices[neighborBucketEntry] & neighborMask) != 0);
         }
-        if (neighborExists && containsEdge(currentNeighbor, neighbor) &&
-            !vertexInArray(neighbor, shortestPathSet)) {
+        boolean containsEdge;
+        boolean currentNeighborExists3;
+        if (currentNeighbor > maxVertex) {
+          currentNeighborExists3 = false;
+        } else {
+          long currentNeighborMask3 = 1L << (currentNeighbor % Long.SIZE);
+          int currentNeighborBucketEntry3 = currentNeighbor / Long.SIZE;
+          currentNeighborExists3 = ((vertices[currentNeighborBucketEntry3] & currentNeighborMask3) != 0);
+        }
+        boolean neighborExists3;
+        if (neighbor > maxVertex) {
+          neighborExists3 = false;
+        } else {
+          long neighborMask3 = 1L << (neighbor % Long.SIZE);
+          int neighborBucketEntry3 = neighbor / Long.SIZE;
+          neighborExists3 = ((vertices[neighborBucketEntry3] & neighborMask3) != 0);
+        }
+        if (!currentNeighborExists3 || !neighborExists3) {
+          containsEdge = false;
+        } else {
+          int tempCurrentNeighbor = currentNeighbor;
+          int tempNeighbor = neighbor;
+          if (tempCurrentNeighbor > tempNeighbor) {
+            int vTemp = tempCurrentNeighbor;
+            tempCurrentNeighbor = tempNeighbor;
+            tempNeighbor = vTemp;
+          }
+          containsEdge = neighborsMatrix[tempCurrentNeighbor][tempNeighbor] < Double.POSITIVE_INFINITY;
+        }
+        if (neighborExists && containsEdge && !vertexInArray(neighbor, shortestPathSet)) {
           double alternativeDistance = distances[currentNeighbor] + getEdgeWeight(neighbor, currentNeighbor);
           if (alternativeDistance < distances[neighbor]) {
             distances[neighbor] = alternativeDistance;
