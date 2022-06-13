@@ -106,7 +106,23 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
           neighborExists = ((vertices[neighborBucketEntry] & neighborMask) != 0);
         }
         boolean containsEdge;
-        if (!vertexExists(currentNeighbor) || !vertexExists(neighbor)) {
+        boolean currentNeighborExists;
+        if (currentNeighbor > maxVertex) {
+          currentNeighborExists = false;
+        } else {
+          long currentNeighborMask = 1L << (currentNeighbor % Long.SIZE);
+          int currentNeighborBucketEntry = currentNeighbor / Long.SIZE;
+          currentNeighborExists = ((vertices[currentNeighborBucketEntry] & currentNeighborMask) != 0);
+        }
+        boolean neighborExists2;
+        if (neighbor > maxVertex) {
+          neighborExists2 = false;
+        } else {
+          long neighborMask2 = 1L << (neighbor % Long.SIZE);
+          int neighborBucketEntry2 = neighbor / Long.SIZE;
+          neighborExists2 = (vertices[neighborBucketEntry2] & neighborMask2) != 0;
+        }
+        if (!currentNeighborExists || !neighborExists2) {
           containsEdge = false;
         } else {
           if (currentNeighbor > neighbor) {
@@ -116,7 +132,11 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
           }
           containsEdge = neighborsMatrix[currentNeighbor][neighbor] < Double.POSITIVE_INFINITY;
         }
-        if (neighborExists && containsEdge && !vertexInArray(neighbor, shortestPathSet)) {
+        boolean neighborInShortestPathSet;
+        long neighborMask = 1L << (neighbor % Long.SIZE);
+        int neighborBucketEntry = neighbor / Long.SIZE;
+        neighborInShortestPathSet = (shortestPathSet[neighborBucketEntry] & neighborMask) != 0;
+        if (neighborExists && containsEdge && !neighborInShortestPathSet) {
           double alternativeDistance = distances[currentNeighbor] + getEdgeWeight(neighbor, currentNeighbor);
           if (alternativeDistance < distances[neighbor]) {
             distances[neighbor] = alternativeDistance;
