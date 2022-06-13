@@ -2,6 +2,7 @@ package il.co.site_building.performance_course.graph.benchmarking;
 
 import il.co.site_building.performance_course.graph.UndirectedWeightedNeighborsMatrixGraph;
 import il.co.site_building.performance_course.graph.UndirectedWeightedNeighborsMatrixGraphImpl;
+import il.co.site_building.performance_course.graph.UndirectedWeightedNeighborsMatrixGraphEvil;
 import il.co.site_building.performance_course.graph.data_structures.ShortesPathResult;
 
 import java.util.Random;
@@ -42,7 +43,7 @@ public class ShortestPathBenchmarking {
 
   private static void saveStatistics(ShortesPathResult resultStatistics) {
     saveShortestPathStatistics("Shortest Path ", resultStatistics.shortestPathResult());
-
+    saveShortestPathStatistics("Shortest Path Evil ", resultStatistics.shortestPathEvilResult());
   }
 
   private static void saveShortestPathStatistics(String graphName, DescriptiveStatistics shortestPathResult) {
@@ -61,14 +62,45 @@ public class ShortestPathBenchmarking {
   }
 
   private static ShortesPathResult benchmarkShortestPath(int numberOfVertices,
-                                                             double loadFactor,
-                                                             int numberOfBenchmarkingCycles) {
-    Random random = new Random();
+                                                         double loadFactor,
+                                                         int numberOfBenchmarkingCycles) {
+    DescriptiveStatistics shortestPathStatistics =
+        benchmarkShortestPathGood(numberOfVertices, loadFactor, numberOfBenchmarkingCycles);
+    DescriptiveStatistics shortestPathEvilStatistics =
+        benchmarkShortestPathEvil(numberOfVertices, loadFactor, numberOfBenchmarkingCycles);
+    return new ShortesPathResult(shortestPathStatistics, shortestPathEvilStatistics);
+  }
+
+  private static DescriptiveStatistics benchmarkShortestPathEvil(int numberOfVertices,
+                                                                 double loadFactor,
+                                                                 int numberOfBenchmarkingCycles) {
+    Random random = new Random(SEED);
     System.out.println("Starting benchmarking on shortest path graph...");
     DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics(STATISTICS_WINDOW_SIZE);
     for (int cycle = 1; cycle <= numberOfBenchmarkingCycles; cycle++) {
       UndirectedWeightedNeighborsMatrixGraph graph =
           UndirectedWeightedNeighborsMatrixGraphImpl.generateRandomGraph(random, numberOfVertices, loadFactor);
+      System.gc();
+      System.out.print("\rRunning shortest path evil cycle " + cycle + "...");
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      graph.findShortestPath(0, numberOfVertices - 1);
+      stopwatch.stop();
+      double buildTimeSeconds = stopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS;
+      descriptiveStatistics.addValue(buildTimeSeconds);
+    }
+    System.out.println();
+    return descriptiveStatistics;
+  }
+
+  private static DescriptiveStatistics benchmarkShortestPathGood(int numberOfVertices,
+                                                                 double loadFactor,
+                                                                 int numberOfBenchmarkingCycles) {
+    Random random = new Random(SEED);
+    System.out.println("Starting benchmarking on shortest path graph...");
+    DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics(STATISTICS_WINDOW_SIZE);
+    for (int cycle = 1; cycle <= numberOfBenchmarkingCycles; cycle++) {
+      UndirectedWeightedNeighborsMatrixGraph graph =
+          UndirectedWeightedNeighborsMatrixGraphEvil.generateRandomGraph(random, numberOfVertices, loadFactor);
       System.gc();
       System.out.print("\rRunning shortest path cycle " + cycle + "...");
       Stopwatch stopwatch = Stopwatch.createStarted();
@@ -78,7 +110,7 @@ public class ShortestPathBenchmarking {
       descriptiveStatistics.addValue(buildTimeSeconds);
     }
     System.out.println();
-    return new ShortesPathResult(descriptiveStatistics);
+    return descriptiveStatistics;
   }
 
   private static void warmup(int numberOfVertices, double loadFactor, int numberOfWarmupCycles) {
@@ -86,6 +118,14 @@ public class ShortestPathBenchmarking {
     System.out.println("Staring warmup for shortest path benchmarking...");
     for (int cycle = 1; cycle <= numberOfWarmupCycles; cycle++) {
       System.out.print("\rGraph warmup cycle " + cycle + "....");
+      UndirectedWeightedNeighborsMatrixGraph graph =
+          UndirectedWeightedNeighborsMatrixGraphEvil.generateRandomGraph(random, numberOfVertices, loadFactor);
+      graph.findShortestPath(0, numberOfVertices - 1);
+    }
+    System.out.println();
+    System.out.println("Staring warmup for evil shortest path benchmarking...");
+    for (int cycle = 1; cycle <= numberOfWarmupCycles; cycle++) {
+      System.out.print("\rEvil Graph warmup cycle " + cycle + "....");
       UndirectedWeightedNeighborsMatrixGraph graph =
           UndirectedWeightedNeighborsMatrixGraphImpl.generateRandomGraph(random, numberOfVertices, loadFactor);
       graph.findShortestPath(0, numberOfVertices - 1);
