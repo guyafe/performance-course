@@ -79,7 +79,7 @@ public class ShortestPathBenchmarking {
     DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics(STATISTICS_WINDOW_SIZE);
     for (int cycle = 1; cycle <= numberOfBenchmarkingCycles; cycle++) {
       UndirectedWeightedNeighborsMatrixGraph graph =
-          UndirectedWeightedNeighborsMatrixGraphImpl.generateRandomGraph(random, numberOfVertices, loadFactor);
+          UndirectedWeightedNeighborsMatrixGraphEvil.generateRandomGraph(random, numberOfVertices, loadFactor);
       System.gc();
       System.out.print("\rRunning shortest path evil cycle " + cycle + "...");
       Stopwatch stopwatch = Stopwatch.createStarted();
@@ -100,7 +100,7 @@ public class ShortestPathBenchmarking {
     DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics(STATISTICS_WINDOW_SIZE);
     for (int cycle = 1; cycle <= numberOfBenchmarkingCycles; cycle++) {
       UndirectedWeightedNeighborsMatrixGraph graph =
-          UndirectedWeightedNeighborsMatrixGraphEvil.generateRandomGraph(random, numberOfVertices, loadFactor);
+          UndirectedWeightedNeighborsMatrixGraphImpl.generateRandomGraph(random, numberOfVertices, loadFactor);
       System.gc();
       System.out.print("\rRunning shortest path cycle " + cycle + "...");
       Stopwatch stopwatch = Stopwatch.createStarted();
@@ -119,7 +119,7 @@ public class ShortestPathBenchmarking {
     for (int cycle = 1; cycle <= numberOfWarmupCycles; cycle++) {
       System.out.print("\rGraph warmup cycle " + cycle + "....");
       UndirectedWeightedNeighborsMatrixGraph graph =
-          UndirectedWeightedNeighborsMatrixGraphEvil.generateRandomGraph(random, numberOfVertices, loadFactor);
+          UndirectedWeightedNeighborsMatrixGraphImpl.generateRandomGraph(random, numberOfVertices, loadFactor);
       graph.findShortestPath(0, numberOfVertices - 1);
     }
     System.out.println();
@@ -127,7 +127,7 @@ public class ShortestPathBenchmarking {
     for (int cycle = 1; cycle <= numberOfWarmupCycles; cycle++) {
       System.out.print("\rEvil Graph warmup cycle " + cycle + "....");
       UndirectedWeightedNeighborsMatrixGraph graph =
-          UndirectedWeightedNeighborsMatrixGraphImpl.generateRandomGraph(random, numberOfVertices, loadFactor);
+          UndirectedWeightedNeighborsMatrixGraphEvil.generateRandomGraph(random, numberOfVertices, loadFactor);
       graph.findShortestPath(0, numberOfVertices - 1);
     }
     System.out.println();
