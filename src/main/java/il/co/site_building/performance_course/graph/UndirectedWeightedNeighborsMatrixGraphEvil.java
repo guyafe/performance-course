@@ -141,14 +141,47 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
         int bucketEntry = neighbor / Long.SIZE;
         neighborInShortestPathSet = ((shortestPathSet[bucketEntry] & mask) != 0);
         if (neighborExists && containsEdge && !neighborInShortestPathSet) {
-          double alternativeDistance = distances[currentNeighbor] + getEdgeWeight(neighbor, currentNeighbor);
+          double edgeWeight;
+          boolean currentNeighborExists2;
+          if (currentNeighbor > maxVertex) {
+            currentNeighborExists2 = false;
+          } else {
+            long currentNeighborMask2 = 1L << (currentNeighbor % Long.SIZE);
+            int currentNeighborBucketEntry2 = currentNeighbor / Long.SIZE;
+            currentNeighborExists2 = ((vertices[currentNeighborBucketEntry2] & currentNeighborMask2) != 0);
+          }
+          boolean neighborExists2;
+          if (neighbor > maxVertex) {
+            neighborExists2 = false;
+          } else {
+            long neighborMask2 = 1L << (neighbor % Long.SIZE);
+            int neighborBucketEntry2 = neighbor / Long.SIZE;
+            neighborExists2 = ((vertices[neighborBucketEntry2] & neighborMask2) != 0);
+          }
+          if (!currentNeighborExists2 || !neighborExists2) {
+            edgeWeight = Double.NaN;
+          } else if (currentNeighbor == neighbor) {
+            edgeWeight = 0;
+          } else {
+            int tempNeighbor = neighbor;
+            int tempCurrentNeighbor = currentNeighbor;
+            if (tempCurrentNeighbor > tempNeighbor) {
+              int vTemp = tempCurrentNeighbor;
+              tempCurrentNeighbor = tempNeighbor;
+              tempNeighbor = vTemp;
+            }
+            edgeWeight = neighborsMatrix[tempCurrentNeighbor][tempNeighbor];
+          }
+          double alternativeDistance = distances[currentNeighbor] + edgeWeight;
           if (alternativeDistance < distances[neighbor]) {
             distances[neighbor] = alternativeDistance;
             previousNodes[neighbor] = currentNeighbor;
           }
         }
       }
-      addVertex(currentNeighbor, shortestPathSet);
+      int currentNeighborBucketEntry = currentNeighbor / Long.SIZE;
+      long currentNeighborMask = 1L << (currentNeighbor % Long.SIZE);
+      shortestPathSet[currentNeighborBucketEntry] |= currentNeighborMask;
       if (closestNeighbor == dest) {
         break;
       }
