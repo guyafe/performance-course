@@ -35,7 +35,9 @@ public class UndirectedWeightedNeighborsMatrixGraphEvil extends UndirectedWeight
         new int[maxVertex + 1]; //previousNodes[j] is the node that comes before j in the shortest path from source
     Arrays.fill(previousNodes, UNDEFINED);
     long[] shortestPathSet = new long[maxVertex / Long.SIZE + 1];
-    addVertex(source, shortestPathSet);
+    int bucketEntry = source / Long.SIZE;
+    long mask = 1L << (source % Long.SIZE);
+    shortestPathSet[bucketEntry] |= mask;
     distances[source] = 0.0;
     previousNodes[source] = source;
     int currentNeighbor = source;
