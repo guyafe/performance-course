@@ -99,9 +99,10 @@ public class UndirectedWeightedNeighborsMatrixGraphImpl extends UndirectedWeight
 
   /**
    * Creates a random graph with the given size and load factor. The edges' weights are unigormally distributed between 0.0-1.0.
-   * @param random Random generator
+   *
+   * @param random           Random generator
    * @param numberOfVertices Size of the graph
-   * @param loadFactor Load factor. Represents the probability of having an edge between two vertices.
+   * @param loadFactor       Load factor. Represents the probability of having an edge between two vertices.
    * @return The generated graph.
    */
   public static UndirectedWeightedNeighborsMatrixGraphImpl generateRandomGraph(Random random,
@@ -109,8 +110,8 @@ public class UndirectedWeightedNeighborsMatrixGraphImpl extends UndirectedWeight
                                                                                double loadFactor) {
     UndirectedWeightedNeighborsMatrixGraphImpl graph = new UndirectedWeightedNeighborsMatrixGraphImpl(numberOfVertices);
     for (int source = 0; source < numberOfVertices; source++) {
-      for(int dest = source + 1; dest < numberOfVertices; dest++){
-        if(random.nextDouble() < loadFactor){
+      for (int dest = source + 1; dest < numberOfVertices; dest++) {
+        if (random.nextDouble() < loadFactor) {
           graph.setEdge(source, dest, random.nextDouble());
         }
       }

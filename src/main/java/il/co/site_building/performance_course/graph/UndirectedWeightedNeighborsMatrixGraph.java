@@ -8,7 +8,8 @@ import java.util.Arrays;
  */
 public abstract class UndirectedWeightedNeighborsMatrixGraph {
 
-  protected long[] vertices; //Bitwise array of all vertices. 1 in the relevant position indicates that the vertex exist.
+  protected long[] vertices;
+      //Bitwise array of all vertices. 1 in the relevant position indicates that the vertex exist.
   protected double[][] neighborsMatrix;
   //Neighbors matrix implementation. Each value indicates the weight of an edge. Negative value indicates that the edge doesn't exist.
   protected int maxVertex;
@@ -32,7 +33,7 @@ public abstract class UndirectedWeightedNeighborsMatrixGraph {
     int lastBucketOffset = getBucketOffset(numberOfVertices);
     buildVertices(lastBucketEntry, lastBucketOffset);
     neighborsMatrix = new double[numberOfVertices][numberOfVertices];
-    for(int row = 0; row < numberOfVertices; row++){
+    for (int row = 0; row < numberOfVertices; row++) {
       Arrays.fill(neighborsMatrix[row], Double.POSITIVE_INFINITY);
     }
     maxVertex = numberOfVertices;
@@ -60,13 +61,13 @@ public abstract class UndirectedWeightedNeighborsMatrixGraph {
   }
 
   public void setEdge(int v1, int v2, double weight) {
-    if(!vertexExists(v1) || !vertexExists(v2)){
+    if (!vertexExists(v1) || !vertexExists(v2)) {
       return;
     }
-    if(v1 == v2){
+    if (v1 == v2) {
       return; //An edge is always 0 distance from itself.
     }
-    if(0 <= weight) {
+    if (0 <= weight) {
       if (v1 > v2) {
         int vTemp = v1;
         v1 = v2;
@@ -78,8 +79,8 @@ public abstract class UndirectedWeightedNeighborsMatrixGraph {
 
   public abstract PathResult findShortestPath(int source, int dest);
 
-  public boolean containsEdge(int v1, int v2){
-    if(!vertexExists(v1) || !vertexExists(v2)){
+  public boolean containsEdge(int v1, int v2) {
+    if (!vertexExists(v1) || !vertexExists(v2)) {
       return false;
     }
     if (v1 > v2) {
@@ -87,14 +88,14 @@ public abstract class UndirectedWeightedNeighborsMatrixGraph {
       v1 = v2;
       v2 = vTemp;
     }
-    return neighborsMatrix[v1][v2]  < Double.POSITIVE_INFINITY;
+    return neighborsMatrix[v1][v2] < Double.POSITIVE_INFINITY;
   }
 
-  public double getEdgeWeight(int v1, int v2){
-    if(!vertexExists(v1) || !vertexExists(v2)){
+  public double getEdgeWeight(int v1, int v2) {
+    if (!vertexExists(v1) || !vertexExists(v2)) {
       return Double.NaN;
     }
-    if(v1==v2){
+    if (v1 == v2) {
       return 0;
     }
     if (v1 > v2) {
@@ -102,7 +103,7 @@ public abstract class UndirectedWeightedNeighborsMatrixGraph {
       v1 = v2;
       v2 = vTemp;
     }
-    return neighborsMatrix[v1][v2] ;
+    return neighborsMatrix[v1][v2];
   }
 
   public boolean vertexExists(int vertex) {
@@ -113,7 +114,7 @@ public abstract class UndirectedWeightedNeighborsMatrixGraph {
     }
   }
 
-  protected boolean vertexInArray(int vertex, long[] array){
+  protected boolean vertexInArray(int vertex, long[] array) {
     long mask = createMask(vertex);
     int bucketEntry = getBucketEntry(vertex);
     return (array[bucketEntry] & mask) != 0;
@@ -130,8 +131,8 @@ public abstract class UndirectedWeightedNeighborsMatrixGraph {
 
   private void increaseNeighborsMatrix(int vertex) {
     double[][] newNeighborsMatrix = new double[vertex + 1][vertex + 1];
-    for(int row = 0; row < vertex + 1; row++){
-      for(int column = row + 1; column < vertex + 1; column++){
+    for (int row = 0; row < vertex + 1; row++) {
+      for (int column = row + 1; column < vertex + 1; column++) {
         newNeighborsMatrix[row][column] = Double.POSITIVE_INFINITY;
       }
     }
