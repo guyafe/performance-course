@@ -1,6 +1,8 @@
 package il.co.site_building.performance_course.matrices;
 
 
+import java.util.Random;
+
 /**
  * Matrix represented by blocks. Used as cache friendly matrix for multiplication operations.
  */
@@ -82,5 +84,15 @@ public class BlocksMatrix {
         }
       }
     }
+  }
+
+  public static BlocksMatrix generateRandomMatrix(Random random, int size, int blockSize){
+    BlocksMatrix matrix = new BlocksMatrix(size, size, blockSize);
+    for (int row = 0; row < size; row++) {
+      for (int col = 0; col < size; col++) {
+        matrix.set(row, col, random.nextDouble());
+      }
+    }
+    return matrix;
   }
 }
