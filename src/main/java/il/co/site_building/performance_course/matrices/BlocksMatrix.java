@@ -113,30 +113,66 @@ public class BlocksMatrix {
     double[][] resultBlock = result.blocks[blockRow][blockColumn];
     int unrollingLoops = blockSize / UNROLLING_FACTOR;
     for (int row = 0; row < blockSize; row++) {
-      for (int column = 0; column < blockSize; column++) {
-        for (int loop = 0; loop < unrollingLoops; loop++) {
-          int loopStart = loop * UNROLLING_FACTOR;
-          resultBlock[row][column] += thisBlock[row][loopStart] * otherBlock[loopStart][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 1] * otherBlock[loopStart + 1][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 2] * otherBlock[loopStart + 2][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 3] * otherBlock[loopStart + 3][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 4] * otherBlock[loopStart + 4][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 5] * otherBlock[loopStart + 5][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 6] * otherBlock[loopStart + 6][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 7] * otherBlock[loopStart + 7][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 8] * otherBlock[loopStart + 8][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 9] * otherBlock[loopStart + 9][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 10] * otherBlock[loopStart + 10][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 11] * otherBlock[loopStart + 11][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 12] * otherBlock[loopStart + 12][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 13] * otherBlock[loopStart + 13][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 14] * otherBlock[loopStart + 14][column];
-          resultBlock[row][column] += thisBlock[row][loopStart + 15] * otherBlock[loopStart + 15][column];
-        }
-        for (int item = unrollingLoops * UNROLLING_FACTOR; item < blockSize; item++) {
-          resultBlock[row][column] += thisBlock[row][item] * otherBlock[item][column];
-        }
-      }
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row);
+    }
+  }
+
+  private void columnProductUnrolled(double[][] thisBlock,
+                         double[][] otherBlock,
+                         double[][] resultBlock,
+                         int unrollingLoops,
+                         int row) {
+    for (int loop = 0; loop < unrollingLoops; loop++) {
+      int startColumn = loop * UNROLLING_FACTOR;
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 1);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 2);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 3);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 4);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 5);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 6);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 7);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 8);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 9);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 10);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 11);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 12);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 13);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 14);
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 15);
+    }
+    for (int column = unrollingLoops * UNROLLING_FACTOR; column < blockSize; column++) {
+      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, column);
+    }
+  }
+
+  private void scalarProductUnrolled(double[][] thisBlock,
+                                     double[][] otherBlock,
+                                     double[][] resultBlock,
+                                     int unrollingLoops,
+                                     int row,
+                                     int column) {
+    for (int loop = 0; loop < unrollingLoops; loop++) {
+      int loopStart = loop * UNROLLING_FACTOR;
+      resultBlock[row][column] += thisBlock[row][loopStart] * otherBlock[loopStart][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 1] * otherBlock[loopStart + 1][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 2] * otherBlock[loopStart + 2][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 3] * otherBlock[loopStart + 3][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 4] * otherBlock[loopStart + 4][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 5] * otherBlock[loopStart + 5][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 6] * otherBlock[loopStart + 6][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 7] * otherBlock[loopStart + 7][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 8] * otherBlock[loopStart + 8][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 9] * otherBlock[loopStart + 9][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 10] * otherBlock[loopStart + 10][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 11] * otherBlock[loopStart + 11][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 12] * otherBlock[loopStart + 12][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 13] * otherBlock[loopStart + 13][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 14] * otherBlock[loopStart + 14][column];
+      resultBlock[row][column] += thisBlock[row][loopStart + 15] * otherBlock[loopStart + 15][column];
+    }
+    for (int item = unrollingLoops * UNROLLING_FACTOR; item < blockSize; item++) {
+      resultBlock[row][column] += thisBlock[row][item] * otherBlock[item][column];
     }
   }
 
