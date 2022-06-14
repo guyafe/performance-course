@@ -1,5 +1,7 @@
 package il.co.site_building.performance_course.matrices;
 
+import java.util.Random;
+
 public class ArrayBasedMatrix {
 
   private final double[][] matrix;
@@ -75,6 +77,16 @@ public class ArrayBasedMatrix {
       }
     }
     return transposed;
+  }
+
+  public static ArrayBasedMatrix generateRandomMatrix(Random random, int size){
+    ArrayBasedMatrix matrix = new ArrayBasedMatrix(size, size);
+    for (int row = 0; row < size; row++) {
+      for (int col = 0; col < size; col++) {
+        matrix.matrix[row][col] = random.nextDouble();
+      }
+    }
+    return matrix;
   }
 
 }
