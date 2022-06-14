@@ -12,6 +12,7 @@ public class BlocksMatrix {
   private final int blockSize;
   private final int rows;
   private final int columns;
+  private static final int UNROLLING_FACTOR = 16;
 
   public BlocksMatrix(int rows, int columns, int blockSize) {
     int blockRows = rows / blockSize;
@@ -45,16 +46,7 @@ public class BlocksMatrix {
   }
 
   public BlocksMatrix multiply(BlocksMatrix other) {
-    if (columns != other.rows) {
-      throw new IllegalArgumentException("Matrices must match dimensions.");
-    }
-    if (blockSize != other.blockSize) {
-      throw new IllegalArgumentException("Matrices must have same block size.");
-    }
-    return multiplyInternal(other);
-  }
-
-  private BlocksMatrix multiplyInternal(BlocksMatrix other) {
+    assertDimensions(other);
     BlocksMatrix result = new BlocksMatrix(rows, other.columns, blockSize);
     int blockRows = blocks.length;
     int blockColumns = other.blocks[0].length;
@@ -67,6 +59,31 @@ public class BlocksMatrix {
       }
     }
     return result;
+  }
+
+  public BlocksMatrix multiplyUnrolling(BlocksMatrix other) {
+    assertDimensions(other);
+    BlocksMatrix result = new BlocksMatrix(rows, other.columns, blockSize);
+    int blockRows = blocks.length;
+    int blockColumns = other.blocks[0].length;
+    int blockItems = other.blocks.length;
+    for (int blockRow = 0; blockRow < blockRows; blockRow++) {
+      for (int blockColumn = 0; blockColumn < blockColumns; blockColumn++) {
+        for (int blockItem = 0; blockItem < blockItems; blockItem++) {
+          multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, blockItem);
+        }
+      }
+    }
+    return result;
+  }
+
+  private void assertDimensions(BlocksMatrix other) {
+    if (columns != other.rows) {
+      throw new IllegalArgumentException("Matrices must match dimensions.");
+    }
+    if (blockSize != other.blockSize) {
+      throw new IllegalArgumentException("Matrices must have same block size.");
+    }
   }
 
   private void multiplyAndAddBlock(BlocksMatrix result,
@@ -86,7 +103,44 @@ public class BlocksMatrix {
     }
   }
 
-  public static BlocksMatrix generateRandomMatrix(Random random, int size, int blockSize){
+  private void multiplyAndAddBlockUnrolling(BlocksMatrix result,
+                                            BlocksMatrix other,
+                                            int blockRow,
+                                            int blockColumn,
+                                            int blockItem) {
+    double[][] thisBlock = this.blocks[blockRow][blockItem];
+    double[][] otherBlock = other.blocks[blockItem][blockColumn];
+    double[][] resultBlock = result.blocks[blockRow][blockColumn];
+    int unrollingLoops = blockSize / UNROLLING_FACTOR;
+    for (int row = 0; row < blockSize; row++) {
+      for (int column = 0; column < blockSize; column++) {
+        for (int loop = 0; loop < unrollingLoops; loop++) {
+          int loopStart = loop * UNROLLING_FACTOR;
+          resultBlock[row][column] += thisBlock[row][loopStart] * otherBlock[loopStart][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 1] * otherBlock[loopStart + 1][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 2] * otherBlock[loopStart + 2][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 3] * otherBlock[loopStart + 3][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 4] * otherBlock[loopStart + 4][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 5] * otherBlock[loopStart + 5][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 6] * otherBlock[loopStart + 6][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 7] * otherBlock[loopStart + 7][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 8] * otherBlock[loopStart + 8][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 9] * otherBlock[loopStart + 9][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 10] * otherBlock[loopStart + 10][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 11] * otherBlock[loopStart + 11][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 12] * otherBlock[loopStart + 12][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 13] * otherBlock[loopStart + 13][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 14] * otherBlock[loopStart + 14][column];
+          resultBlock[row][column] += thisBlock[row][loopStart + 15] * otherBlock[loopStart + 15][column];
+        }
+        for (int item = unrollingLoops * UNROLLING_FACTOR; item < blockSize; item++) {
+          resultBlock[row][column] += thisBlock[row][item] * otherBlock[item][column];
+        }
+      }
+    }
+  }
+
+  public static BlocksMatrix generateRandomMatrix(Random random, int size, int blockSize) {
     BlocksMatrix matrix = new BlocksMatrix(size, size, blockSize);
     for (int row = 0; row < size; row++) {
       for (int col = 0; col < size; col++) {
