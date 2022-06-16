@@ -67,12 +67,64 @@ public class BlocksMatrix {
     int blockRows = blocks.length;
     int blockColumns = other.blocks[0].length;
     int blockItems = other.blocks.length;
-    for (int blockRow = 0; blockRow < blockRows; blockRow++) {
-      for (int blockColumn = 0; blockColumn < blockColumns; blockColumn++) {
-        multiplyBlockItem(other, result, blockItems, blockRow, blockColumn);
-      }
-    }
+    multiplyBlocksRows(other, result, blockRows, blockColumns, blockItems);
     return result;
+  }
+
+  private void multiplyBlocksRows(BlocksMatrix other, BlocksMatrix result, int blockRows, int blockColumns, int blockItems) {
+    int unrollingLoops = blockRows / UNROLLING_FACTOR;
+    for (int loop = 0; loop < unrollingLoops; loop++) {
+      int blockRowStart = loop * UNROLLING_FACTOR;
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 1);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 2);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 3);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 4);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 5);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 6);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 7);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 8);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 9);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 10);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 11);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 12);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 13);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 14);
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 15);
+    }
+    for (int blockRow = unrollingLoops * UNROLLING_FACTOR; blockRow < blockRows; blockRow++) {
+      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRow);
+    }
+  }
+
+  private void multiplyBlockColumns(BlocksMatrix other,
+                                    BlocksMatrix result,
+                                    int blockColumns,
+                                    int blockItems,
+                                    int blockRow) {
+    int unrollingLoops = blockColumns / UNROLLING_FACTOR;
+    for (int loop = 0; loop < unrollingLoops; loop++) {
+      int blockColumnStart = loop * UNROLLING_FACTOR;
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 1);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 2);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 3);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 4);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 5);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 6);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 7);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 8);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 9);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 10);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 11);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 12);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 13);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 14);
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 15);
+    }
+    for (int blockColumn = unrollingLoops * UNROLLING_FACTOR; blockColumn < blockColumns; blockColumn++) {
+      multiplyBlockItem(other, result, blockItems, blockRow, blockColumn);
+    }
   }
 
   private void multiplyBlockItem(BlocksMatrix other,
