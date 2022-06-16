@@ -112,6 +112,25 @@ public class BlocksMatrix {
     double[][] otherBlock = other.blocks[blockItem][blockColumn];
     double[][] resultBlock = result.blocks[blockRow][blockColumn];
     int unrollingLoops = blockSize / UNROLLING_FACTOR;
+    for (int loop = 0; loop < unrollingLoops; loop++) {
+      int startRow = loop * UNROLLING_FACTOR;
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 1);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 2);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 3);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 4);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 5);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 6);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 7);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 8);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 9);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 10);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 11);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 12);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 13);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 14);
+      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 15);
+    }
     for (int row = 0; row < blockSize; row++) {
       columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row);
     }
