@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 public class MatrixTests {
 
-  private static final double EPSILON = 1E-8;
+  private static final double EPSILON = 1E-12;
 
   @Test
   public void testMatrixMultiplication(){
@@ -77,11 +77,11 @@ public class MatrixTests {
 
   @Test
   public void testBlocksMatrixUnrollingMultiplication(){
-    int blockSize = 3;
-    int rows1 = 100;
-    int cols1 = 200;
-    int rows2 = 200;
-    int cols2 = 300;
+    int blockSize = 7;
+    int rows1 = 131;
+    int cols1 = 277;
+    int rows2 = 277;
+    int cols2 = 319;
     BlocksMatrix matrix1 = new BlocksMatrix(rows1, cols1, blockSize);
     BlocksMatrix matrix2 = new BlocksMatrix(rows2, cols2, blockSize);
     RealMatrix referenceMatrix1 = MatrixUtils.createRealMatrix(rows1, cols1);
@@ -110,6 +110,7 @@ public class MatrixTests {
     for (int row = 0; row < result.rows(); row++) {
       for (int col = 0; col < result.columns(); col++) {
         Assertions.assertTrue(Math.abs(result.get(row, col) - referenceResult.getEntry(row, col)) <= EPSILON);
+//        Assertions.assertEquals(result.get(row, col) ,referenceResult.getEntry(row, col));
       }
     }
   }
