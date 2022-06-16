@@ -2,6 +2,9 @@ package il.co.site_building.performance_course.matrices;
 
 
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Matrix represented by blocks. Used as cache friendly matrix for multiplication operations.
@@ -273,6 +276,27 @@ public class BlocksMatrix {
     for (int item = unrollingLoops * UNROLLING_FACTOR; item < blockSize; item++) {
       resultBlock[row][column] += thisBlock[row][item] * otherBlock[item][column];
     }
+  }
+
+  public BlocksMatrix multiplyParallel(BlocksMatrix other, int numberOfThreads){
+    ExecutorService threadPool = Executors.newFixedThreadPool(numberOfThreads);
+    assertDimensions(other);
+    BlocksMatrix result = new BlocksMatrix(rows, other.columns, blockSize);
+    int blockRows = blocks.length;
+    int blockColumns = other.blocks[0].length;
+    int blockItems = other.blocks.length;
+    for (int blockRow = 0; blockRow < blockRows; blockRow++) {
+      int finalBlockRow = blockRow;
+      threadPool.submit(() -> multiplyBlockColumns(other, result, blockColumns, blockItems, finalBlockRow));
+    }
+    threadPool.shutdown();
+    try {
+      threadPool.awaitTermination(1, TimeUnit.DAYS);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return null;
+    }
+    return result;
   }
 
   public static BlocksMatrix generateRandomMatrix(Random random, int size, int blockSize) {

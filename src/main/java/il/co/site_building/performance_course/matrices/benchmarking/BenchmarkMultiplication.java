@@ -14,6 +14,8 @@ public class BenchmarkMultiplication {
 
   private static final double NANOS = 1E9;
   private static final int WINDOW_SIZE = 8192;
+  private static final String GREEN_BOLD = "\033[1;32m";  // GREEN
+  private static final String RESET = "\033[0m";
 
   public static void main(String... args) {
     int size = Integer.parseInt(args[0]);
@@ -30,6 +32,7 @@ public class BenchmarkMultiplication {
     saveResult("multiplication", result.multiplicationResult());
     saveResult("transpose multiplication", result.transposeMultiplicationResult());
     saveResult("blocks multiplication", result.blocksMatrixResult());
+    saveResult("blocks Parallel multiplication", result.blockParallelMatrixResult());
   }
 
   private static void saveResult(String operation, DescriptiveStatistics multiplicationResult) {
@@ -39,9 +42,9 @@ public class BenchmarkMultiplication {
     double percentile5 = multiplicationResult.getPercentile(5);
     double percentile50 = multiplicationResult.getPercentile(50);
     double percentile95 = multiplicationResult.getPercentile(59);
-    System.out.println("Average time for " + operation + ": " + averageTimeSeconds);
+    System.out.println(GREEN_BOLD + "Average time for " + operation + ": " + averageTimeSeconds + RESET);
     System.out.println("STD time for " + operation + ": " + stdTimeSeconds);
-    System.out.println("STD time (percent) for " + operation + ": " + stdTimePercent);
+    System.out.println("STD time (percent) for " + operation + ": " + String.format("%.02f", stdTimePercent) + "%");
     System.out.println("5 percentile time for " + operation + ": " + percentile5);
     System.out.println("50 percentile time for " + operation + ": " + percentile50);
     System.out.println("95 percentile time for " + operation + ": " + percentile95);
@@ -51,6 +54,7 @@ public class BenchmarkMultiplication {
     DescriptiveStatistics multiplicationResult = new DescriptiveStatistics(WINDOW_SIZE);
     DescriptiveStatistics transposeMultiplicationResult = new DescriptiveStatistics(WINDOW_SIZE);
     DescriptiveStatistics blocksMatrixResult = new DescriptiveStatistics(WINDOW_SIZE);
+    DescriptiveStatistics blocksParallelMatrixResult = new DescriptiveStatistics(WINDOW_SIZE);
     System.out.println("Starting benchmark cycles...");
     Random random = new Random();
     for (int cycle = 1; cycle <= numberOfCycles; cycle++) {
@@ -59,11 +63,13 @@ public class BenchmarkMultiplication {
       ArrayBasedMatrix matrix1 = ArrayBasedMatrix.generateRandomMatrix(random, size);
       System.out.print("\rGenerating second random matrix for benchmark cycle " + cycle);
       ArrayBasedMatrix matrix2 = ArrayBasedMatrix.generateRandomMatrix(random, size);
+
       System.out.print("\rMultiplying matrices for cycle " + cycle);
       Stopwatch multiplyStopwatch = Stopwatch.createStarted();
       matrix1.multiply(matrix2);
       multiplyStopwatch.stop();
       multiplicationResult.addValue(multiplyStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
+
       System.out.print("\rTranspose multiplying matrices for cycle " + cycle);
       Stopwatch transposeMultiplyStopwatch = Stopwatch.createStarted();
       matrix1.multiplyTranspose(matrix2);
@@ -79,11 +85,18 @@ public class BenchmarkMultiplication {
       blocksMatrix1.multiply(blocksMatrix2);
       blocksMultiplyStopwatch.stop();
       blocksMatrixResult.addValue(blocksMultiplyStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
+
+      System.out.print("\rMultiplying Parallel blocks matrices for cycle " + cycle);
+      Stopwatch blocksParallelMultiplyStopwatch = Stopwatch.createStarted();
+      blocksMatrix1.multiplyParallel(blocksMatrix2, 10);
+      blocksParallelMultiplyStopwatch.stop();
+      blocksParallelMatrixResult.addValue(blocksParallelMultiplyStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
     }
     System.out.println();
     return new MatrixMultiplicationBenchmarkResult(multiplicationResult,
                                                    transposeMultiplicationResult,
-                                                   blocksMatrixResult);
+                                                   blocksMatrixResult,
+                                                   blocksParallelMatrixResult);
   }
 
   private static void warmup(int size, int numberOfWarmupCycles, int blockSize) {
@@ -105,6 +118,8 @@ public class BenchmarkMultiplication {
       BlocksMatrix blockMatrix2 = BlocksMatrix.generateRandomMatrix(random, size, blockSize);
       System.out.print("\rMultiplying warmup blocks matrices for cycle " + cycle);
       blockMatrix1.multiply(blockMatrix2);
+      System.out.print("\rParallel Multiplying warmup blocks matrices for cycle " + cycle);
+      blockMatrix1.multiplyParallel(blockMatrix2, 10);
     }
     System.out.println();
   }

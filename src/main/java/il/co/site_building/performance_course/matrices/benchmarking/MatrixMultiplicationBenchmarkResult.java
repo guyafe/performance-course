@@ -4,5 +4,6 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 public record MatrixMultiplicationBenchmarkResult(DescriptiveStatistics multiplicationResult,
                                                   DescriptiveStatistics transposeMultiplicationResult,
-                                                  DescriptiveStatistics blocksMatrixResult) {
+                                                  DescriptiveStatistics blocksMatrixResult,
+                                                  DescriptiveStatistics blockParallelMatrixResult) {
 }
