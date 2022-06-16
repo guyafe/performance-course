@@ -22,9 +22,10 @@ public class BenchmarkMultiplication {
     int numberOfCycles = Integer.parseInt(args[1]);
     int numberOfWarmupCycles = Integer.parseInt(args[2]);
     int blockSize = Integer.parseInt(args[3]);
+    int numberOfThreads = Integer.parseInt(args[4]);
     System.out.println("Starting benchmark on matrix multiplication....");
-    warmup(size, numberOfWarmupCycles, blockSize);
-    MatrixMultiplicationBenchmarkResult result = benchmark(size, numberOfCycles, blockSize);
+    warmup(size, numberOfWarmupCycles, blockSize, numberOfThreads);
+    MatrixMultiplicationBenchmarkResult result = benchmark(size, numberOfCycles, blockSize, numberOfThreads);
     saveResult(result);
   }
 
@@ -50,7 +51,10 @@ public class BenchmarkMultiplication {
     System.out.println("95 percentile time for " + operation + ": " + percentile95);
   }
 
-  private static MatrixMultiplicationBenchmarkResult benchmark(int size, int numberOfCycles, int blockSize) {
+  private static MatrixMultiplicationBenchmarkResult benchmark(int size,
+                                                               int numberOfCycles,
+                                                               int blockSize,
+                                                               int numberOfThreads) {
     DescriptiveStatistics multiplicationResult = new DescriptiveStatistics(WINDOW_SIZE);
     DescriptiveStatistics transposeMultiplicationResult = new DescriptiveStatistics(WINDOW_SIZE);
     DescriptiveStatistics blocksMatrixResult = new DescriptiveStatistics(WINDOW_SIZE);
@@ -88,7 +92,7 @@ public class BenchmarkMultiplication {
 
       System.out.print("\rMultiplying Parallel blocks matrices for cycle " + cycle);
       Stopwatch blocksParallelMultiplyStopwatch = Stopwatch.createStarted();
-      blocksMatrix1.multiplyParallel(blocksMatrix2, 10);
+      blocksMatrix1.multiplyParallel(blocksMatrix2, numberOfThreads);
       blocksParallelMultiplyStopwatch.stop();
       blocksParallelMatrixResult.addValue(blocksParallelMultiplyStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
     }
@@ -99,7 +103,7 @@ public class BenchmarkMultiplication {
                                                    blocksParallelMatrixResult);
   }
 
-  private static void warmup(int size, int numberOfWarmupCycles, int blockSize) {
+  private static void warmup(int size, int numberOfWarmupCycles, int blockSize, int numberOfThreads) {
     System.out.println("Starting warmup cycles....");
     Random random = new Random();
     for (int cycle = 1; cycle <= numberOfWarmupCycles; cycle++) {
@@ -119,7 +123,7 @@ public class BenchmarkMultiplication {
       System.out.print("\rMultiplying warmup blocks matrices for cycle " + cycle);
       blockMatrix1.multiply(blockMatrix2);
       System.out.print("\rParallel Multiplying warmup blocks matrices for cycle " + cycle);
-      blockMatrix1.multiplyParallel(blockMatrix2, 10);
+      blockMatrix1.multiplyParallel(blockMatrix2, numberOfThreads);
     }
     System.out.println();
   }
