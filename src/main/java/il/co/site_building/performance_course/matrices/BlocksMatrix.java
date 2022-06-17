@@ -74,28 +74,12 @@ public class BlocksMatrix {
     return result;
   }
 
-  private void multiplyBlocksRows(BlocksMatrix other, BlocksMatrix result, int blockRows, int blockColumns, int blockItems) {
-    int unrollingLoops = blockRows / UNROLLING_FACTOR;
-    for (int loop = 0; loop < unrollingLoops; loop++) {
-      int blockRowStart = loop * UNROLLING_FACTOR;
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 1);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 2);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 3);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 4);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 5);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 6);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 7);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 8);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 9);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 10);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 11);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 12);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 13);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 14);
-      multiplyBlockColumns(other, result, blockColumns, blockItems, blockRowStart + 15);
-    }
-    for (int blockRow = unrollingLoops * UNROLLING_FACTOR; blockRow < blockRows; blockRow++) {
+  private void multiplyBlocksRows(BlocksMatrix other,
+                                  BlocksMatrix result,
+                                  int blockRows,
+                                  int blockColumns,
+                                  int blockItems) {
+    for (int blockRow = 0; blockRow < blockRows; blockRow++) {
       multiplyBlockColumns(other, result, blockColumns, blockItems, blockRow);
     }
   }
@@ -105,27 +89,7 @@ public class BlocksMatrix {
                                     int blockColumns,
                                     int blockItems,
                                     int blockRow) {
-    int unrollingLoops = blockColumns / UNROLLING_FACTOR;
-    for (int loop = 0; loop < unrollingLoops; loop++) {
-      int blockColumnStart = loop * UNROLLING_FACTOR;
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 1);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 2);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 3);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 4);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 5);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 6);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 7);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 8);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 9);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 10);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 11);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 12);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 13);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 14);
-      multiplyBlockItem(other, result, blockItems, blockRow, blockColumnStart + 15);
-    }
-    for (int blockColumn = unrollingLoops * UNROLLING_FACTOR; blockColumn < blockColumns; blockColumn++) {
+    for (int blockColumn = 0; blockColumn < blockColumns; blockColumn++) {
       multiplyBlockItem(other, result, blockItems, blockRow, blockColumn);
     }
   }
@@ -135,27 +99,7 @@ public class BlocksMatrix {
                                  int blockItems,
                                  int blockRow,
                                  int blockColumn) {
-    int unrollingLoops = blockItems / UNROLLING_FACTOR;
-    for (int loop = 0; loop < unrollingLoops; loop++) {
-      int startBlockRow = loop * UNROLLING_FACTOR;
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 1);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 2);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 3);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 4);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 5);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 6);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 7);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 8);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 9);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 10);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 11);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 12);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 13);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 14);
-      multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, startBlockRow + 15);
-    }
-    for (int blockItem = unrollingLoops * UNROLLING_FACTOR; blockItem < blockItems; blockItem++) {
+    for (int blockItem = 0; blockItem < blockItems; blockItem++) {
       multiplyAndAddBlockUnrolling(result, other, blockRow, blockColumn, blockItem);
     }
   }
@@ -195,26 +139,7 @@ public class BlocksMatrix {
     double[][] otherBlock = other.blocks[blockItem][blockColumn];
     double[][] resultBlock = result.blocks[blockRow][blockColumn];
     int unrollingLoops = blockSize / UNROLLING_FACTOR;
-    for (int loop = 0; loop < unrollingLoops; loop++) {
-      int startRow = loop * UNROLLING_FACTOR;
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 1);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 2);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 3);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 4);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 5);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 6);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 7);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 8);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 9);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 10);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 11);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 12);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 13);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 14);
-      columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, startRow + 15);
-    }
-    for (int row = unrollingLoops * UNROLLING_FACTOR; row < blockSize; row++) {
+    for (int row = 0; row < blockSize; row++) {
       columnProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row);
     }
   }
@@ -224,26 +149,7 @@ public class BlocksMatrix {
                                      double[][] resultBlock,
                                      int unrollingLoops,
                                      int row) {
-    for (int loop = 0; loop < unrollingLoops; loop++) {
-      int startColumn = loop * UNROLLING_FACTOR;
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 1);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 2);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 3);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 4);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 5);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 6);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 7);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 8);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 9);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 10);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 11);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 12);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 13);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 14);
-      scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, startColumn + 15);
-    }
-    for (int column = unrollingLoops * UNROLLING_FACTOR; column < blockSize; column++) {
+    for (int column = 0; column < blockSize; column++) {
       scalarProductUnrolled(thisBlock, otherBlock, resultBlock, unrollingLoops, row, column);
     }
   }
@@ -278,7 +184,7 @@ public class BlocksMatrix {
     }
   }
 
-  public BlocksMatrix multiplyParallel(BlocksMatrix other, int numberOfThreads){
+  public BlocksMatrix multiplyParallel(BlocksMatrix other, int numberOfThreads) {
     ExecutorService threadPool = Executors.newFixedThreadPool(numberOfThreads);
     assertDimensions(other);
     BlocksMatrix result = new BlocksMatrix(rows, other.columns, blockSize);
