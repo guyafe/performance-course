@@ -193,6 +193,33 @@ public class BlocksMatrix {
     int blockItems = other.blocks.length;
     for (int blockRow = 0; blockRow < blockRows; blockRow++) {
       int finalBlockRow = blockRow;
+      threadPool.submit(() -> {
+        for (int blockColumn = 0; blockColumn < blockColumns; blockColumn++) {
+          for (int blockItem = 0; blockItem < blockItems; blockItem++) {
+            multiplyAndAddBlock(result, other, finalBlockRow, blockColumn, blockItem);
+          }
+        }
+      });
+    }
+    threadPool.shutdown();
+    try {
+      threadPool.awaitTermination(1, TimeUnit.DAYS);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return null;
+    }
+    return result;
+  }
+
+  public BlocksMatrix multiplyParallelUnrolling(BlocksMatrix other, int numberOfThreads) {
+    ExecutorService threadPool = Executors.newFixedThreadPool(numberOfThreads);
+    assertDimensions(other);
+    BlocksMatrix result = new BlocksMatrix(rows, other.columns, blockSize);
+    int blockRows = blocks.length;
+    int blockColumns = other.blocks[0].length;
+    int blockItems = other.blocks.length;
+    for (int blockRow = 0; blockRow < blockRows; blockRow++) {
+      int finalBlockRow = blockRow;
       threadPool.submit(() -> multiplyBlockColumns(other, result, blockColumns, blockItems, finalBlockRow));
     }
     threadPool.shutdown();

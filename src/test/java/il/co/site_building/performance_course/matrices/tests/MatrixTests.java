@@ -132,6 +132,37 @@ public class MatrixTests {
         referenceMatrix2.setEntry(row, col, value);
       }
     }
+    BlocksMatrix result = matrix1.multiplyParallelUnrolling(matrix2, 10);
+    RealMatrix referenceResult = referenceMatrix1.multiply(referenceMatrix2);
+    verifyMatricesEqual(result, referenceResult);
+  }
+
+  @Test
+  public void testBlocksMatrixParallelMultiplication() {
+    int blockSize = 7;
+    int rows1 = 131;
+    int cols1 = 277;
+    int rows2 = 277;
+    int cols2 = 319;
+    BlocksMatrix matrix1 = new BlocksMatrix(rows1, cols1, blockSize);
+    BlocksMatrix matrix2 = new BlocksMatrix(rows2, cols2, blockSize);
+    RealMatrix referenceMatrix1 = MatrixUtils.createRealMatrix(rows1, cols1);
+    RealMatrix referenceMatrix2 = MatrixUtils.createRealMatrix(rows2, cols2);
+    Random random = new Random();
+    for (int row = 0; row < rows1; row++) {
+      for (int col = 0; col < cols1; col++) {
+        double value = random.nextDouble();
+        matrix1.set(row, col, value);
+        referenceMatrix1.setEntry(row, col, value);
+      }
+    }
+    for (int row = 0; row < rows2; row++) {
+      for (int col = 0; col < cols2; col++) {
+        double value = random.nextDouble();
+        matrix2.set(row, col, value);
+        referenceMatrix2.setEntry(row, col, value);
+      }
+    }
     BlocksMatrix result = matrix1.multiplyParallel(matrix2, 10);
     RealMatrix referenceResult = referenceMatrix1.multiply(referenceMatrix2);
     verifyMatricesEqual(result, referenceResult);

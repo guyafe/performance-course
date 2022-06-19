@@ -35,6 +35,7 @@ public class BenchmarkMultiplication {
     saveResult("blocks multiplication", result.blocksMatrixResult());
     saveResult("blocks unrolled multiplication", result.blocksUnrolledMatrixResul());
     saveResult("blocks Parallel multiplication", result.blockParallelMatrixResult());
+    saveResult("blocks Parallel  unrolling multiplication", result.blockParallelUnrollingMatrixResult());
   }
 
   private static void saveResult(String operation, DescriptiveStatistics multiplicationResult) {
@@ -61,6 +62,7 @@ public class BenchmarkMultiplication {
     DescriptiveStatistics blocksMatrixResult = new DescriptiveStatistics(WINDOW_SIZE);
     DescriptiveStatistics blocksUnrolledMatrixResult = new DescriptiveStatistics(WINDOW_SIZE);
     DescriptiveStatistics blocksParallelMatrixResult = new DescriptiveStatistics(WINDOW_SIZE);
+    DescriptiveStatistics blocksParallelUnrollingMatrixResult = new DescriptiveStatistics(WINDOW_SIZE);
     System.out.println("Starting benchmark cycles...");
     Random random = new Random();
     for (int cycle = 1; cycle <= numberOfCycles; cycle++) {
@@ -92,7 +94,7 @@ public class BenchmarkMultiplication {
       blocksMultiplyStopwatch.stop();
       blocksMatrixResult.addValue(blocksMultiplyStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
 
-      System.out.print("\rMultiplying Parallel blocks matrices for cycle " + cycle);
+      System.out.print("\rMultiplying Unrolling blocks matrices for cycle " + cycle);
       Stopwatch blocksUnrolledlMultiplyStopwatch = Stopwatch.createStarted();
       blocksMatrix1.multiplyUnrolling(blocksMatrix2);
       blocksUnrolledlMultiplyStopwatch.stop();
@@ -103,13 +105,20 @@ public class BenchmarkMultiplication {
       blocksMatrix1.multiplyParallel(blocksMatrix2, numberOfThreads);
       blocksParallelMultiplyStopwatch.stop();
       blocksParallelMatrixResult.addValue(blocksParallelMultiplyStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
+
+      System.out.print("\rMultiplying unrolling Parallel blocks matrices for cycle " + cycle);
+      Stopwatch blocksParallelUnrollingMultiplyStopwatch = Stopwatch.createStarted();
+      blocksMatrix1.multiplyParallelUnrolling(blocksMatrix2, numberOfThreads);
+      blocksParallelUnrollingMultiplyStopwatch.stop();
+      blocksParallelUnrollingMatrixResult.addValue(blocksParallelUnrollingMultiplyStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
     }
     System.out.println();
     return new MatrixMultiplicationBenchmarkResult(multiplicationResult,
                                                    transposeMultiplicationResult,
                                                    blocksMatrixResult,
                                                    blocksUnrolledMatrixResult,
-                                                   blocksParallelMatrixResult);
+                                                   blocksParallelMatrixResult,
+                                                   blocksParallelUnrollingMatrixResult);
   }
 
   private static void warmup(int size, int numberOfWarmupCycles, int blockSize, int numberOfThreads) {
@@ -135,6 +144,8 @@ public class BenchmarkMultiplication {
       blockMatrix1.multiplyUnrolling(blockMatrix2);
       System.out.print("\rParallel Multiplying warmup blocks matrices for cycle " + cycle);
       blockMatrix1.multiplyParallel(blockMatrix2, numberOfThreads);
+      System.out.print("\rParallel unrolling Multiplying warmup blocks matrices for cycle " + cycle);
+      blockMatrix1.multiplyParallelUnrolling(blockMatrix2, numberOfThreads);
     }
     System.out.println();
   }

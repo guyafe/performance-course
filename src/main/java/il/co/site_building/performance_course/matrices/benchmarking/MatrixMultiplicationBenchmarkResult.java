@@ -6,5 +6,6 @@ public record MatrixMultiplicationBenchmarkResult(DescriptiveStatistics multipli
                                                   DescriptiveStatistics transposeMultiplicationResult,
                                                   DescriptiveStatistics blocksMatrixResult,
                                                   DescriptiveStatistics blocksUnrolledMatrixResul,
-                                                  DescriptiveStatistics blockParallelMatrixResult) {
+                                                  DescriptiveStatistics blockParallelMatrixResult,
+                                                  DescriptiveStatistics blockParallelUnrollingMatrixResult) {
 }
