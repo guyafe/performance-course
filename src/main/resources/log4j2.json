@@ -1,0 +1,25 @@
+{
+  "configuration": {
+    "status": "info",
+    "name": "PerformanceCourseLogger",
+    "packages": "il.co.site_building.performance_course",
+    "appenders": {
+      "Console": {
+        "follow": true,
+        "name": "STDOUT",
+        "target": "SYSTEM_OUT",
+        "PatternLayout": {
+          "pattern": "%m%n"
+        }
+      }
+    },
+    "loggers": {
+      "root": {
+        "level": "info",
+        "AppenderRef": {
+          "ref": "STDOUT"
+        }
+      }
+    }
+  }
+}
