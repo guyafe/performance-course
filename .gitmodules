@@ -1,0 +1,3 @@
+[submodule "gradle-common"]
+	path = gradle-common
+	url = git@github.com:guyafe/gradle-common.git
