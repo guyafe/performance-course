@@ -13,7 +13,7 @@ buildscript {
 apply plugin: "org.openjfx.javafxplugin"
 
 group 'il.co.site_building.performance_course'
-version resolveVersion("1.0")
+version resolveVersion()
 
 repositories {
     mavenCentral()
