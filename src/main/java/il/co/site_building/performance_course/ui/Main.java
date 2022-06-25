@@ -40,19 +40,6 @@ public class Main extends Application {
     primaryStage.setTitle(STAGE_TITLE);
     primaryStage.setScene(primaryScene);
     primaryStage.show();
-    setLoggingToTextArea(primaryScene);
   }
 
-  private void setLoggingToTextArea(Scene primaryScene) {
-    TextArea loggingArea = (TextArea) primaryScene.lookup(LOGGING_TEXT_AREA_NAME);
-    if (loggingArea == null) {
-      logger.error("Unable to load logging text area");
-      return;
-    }
-    TextAreaConsole textAreaConsole = new TextAreaConsole(loggingArea);
-    PrintStream ps = new PrintStream(textAreaConsole, true);
-    System.setOut(ps);
-    System.setErr(ps);
-    logger.info("Ready to start demo app.");
-  }
 }
