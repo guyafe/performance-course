@@ -40,6 +40,7 @@ public class Main extends Application {
     primaryStage.setTitle(STAGE_TITLE);
     primaryStage.setScene(primaryScene);
     primaryStage.show();
+    System.out.println("We are ready to start simulation...");
   }
 
 }
