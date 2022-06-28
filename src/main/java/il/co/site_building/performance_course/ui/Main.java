@@ -21,7 +21,6 @@ public class Main extends Application {
 
   private static final String STAGE_TITLE = "Java Performance Course Examples and Demo Tool";
   private static final Logger logger = LogManager.getRootLogger();
-  private static final String LOGGING_TEXT_AREA_NAME = "#loggingArea";
 
   public static void main(String... args) {
     logger.info("Starting performance examples tool");
