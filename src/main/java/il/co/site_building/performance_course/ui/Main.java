@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -38,6 +39,10 @@ public class Main extends Application {
     Scene primaryScene = new Scene(root);
     primaryStage.setTitle(STAGE_TITLE);
     primaryStage.setScene(primaryScene);
+    primaryStage.setOnCloseRequest(event -> {
+      Platform.exit();
+      System.exit(0);
+    });
     primaryStage.show();
     System.out.println("We are ready to start simulation...");
   }
