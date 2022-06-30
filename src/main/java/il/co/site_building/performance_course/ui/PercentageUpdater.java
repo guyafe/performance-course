@@ -1,23 +1,19 @@
 package il.co.site_building.performance_course.ui;
 
-import javafx.application.Platform;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-
 import java.text.DecimalFormat;
+
+import il.co.site_building.performance_course.ui.controllers.ConnectedComponentsController;
 
 public class PercentageUpdater {
 
   private double percentage = 0;
   private final double increase;
-  private final ProgressBar progressBar;
-  private final Label percentageLabel;
+  private final ConnectedComponentsController controller;
 
-  public PercentageUpdater(double increase, ProgressBar progressBar, Label percentageLabel) {
+  public PercentageUpdater(double increase,
+                           ConnectedComponentsController controller) {
     this.increase = increase;
-    this.progressBar = progressBar;
-    this.percentageLabel = percentageLabel;
-    progressBar.setProgress(0);
+    this.controller = controller;
   }
 
   public void increase() {
@@ -29,11 +25,7 @@ public class PercentageUpdater {
   private void updateProgressBar(double percentage) {
     DecimalFormat df = new DecimalFormat();
     df.setMaximumFractionDigits(2);
-    Platform.runLater(() -> {
-                        progressBar.setProgress(percentage / 100.0);
-                        percentageLabel.setText(df.format(percentage) + "%");
-                      }
-    );
+    controller.updateProgressBar(percentage);
   }
 
   public void finish() {
