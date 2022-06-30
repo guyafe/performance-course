@@ -14,7 +14,7 @@ import il.co.site_building.performance_course.graph.JGraphSimpleGraphImpl;
 import il.co.site_building.performance_course.graph.NeighborsMatrixGraph;
 import il.co.site_building.performance_course.graph.data_structures.ConnectedComponentsBenchmarkStatistics;
 import il.co.site_building.performance_course.ui.PercentageUpdater;
-import il.co.site_building.performance_course.ui.controllers.PerformanceCourseUiController;
+import il.co.site_building.performance_course.ui.controllers.ConnectedComponentsController;
 
 public class ConnectedComponentsRunner implements Callable<ConnectedComponentsBenchmarkStatistics> {
 
@@ -27,7 +27,7 @@ public class ConnectedComponentsRunner implements Callable<ConnectedComponentsBe
   private final double loadFactor;
   private final boolean shouldRunJGraph;
   private final boolean shouldRunNeighborsMatrix;
-  private final PerformanceCourseUiController controller;
+  private final ConnectedComponentsController controller;
   private boolean shouldRun = false;
 
   public ConnectedComponentsRunner(int numberOfVertices,
@@ -36,7 +36,7 @@ public class ConnectedComponentsRunner implements Callable<ConnectedComponentsBe
                                    double loadFactor,
                                    boolean shouldRunJGraph,
                                    boolean shouldRunNeighborsMatrix,
-                                   PerformanceCourseUiController controller) {
+                                   ConnectedComponentsController controller) {
     this.numberOfVertices = numberOfVertices;
     this.numberOfWarmupCycles = numberOfWarmupCycles;
     this.numberOfBenchmarkCycles = numberOfBenchmarkCycles;
@@ -70,6 +70,7 @@ public class ConnectedComponentsRunner implements Callable<ConnectedComponentsBe
     }
     if (numberOfAlgorithms == 0) {
       logger.info("No algorithms selected.");
+      shouldRun = false;
       return null;
     }
     int totalAlgorithmsRuns = (numberOfWarmupCycles + numberOfBenchmarkCycles) * numberOfAlgorithms;
@@ -139,19 +140,23 @@ public class ConnectedComponentsRunner implements Callable<ConnectedComponentsBe
                                  PercentageUpdater percentageUpdater,
                                  ConnectedComponentsBenchmarkStatistics statistics) {
     Random random = new Random();
+    runJgraphCycle(cycle, numberOfVertices, loadFactor, shouldRunJGraph, percentageUpdater, statistics, random);
+    runNeighborsMatrixCycle(cycle,
+                            numberOfVertices,
+                            loadFactor,
+                            shouldRunNeighborsMatrix,
+                            percentageUpdater,
+                            statistics,
+                            random);
+  }
 
-    if (shouldRunJGraph && shouldRun) {
-      controller.updateStatus("Running benchmark cycle " + cycle + " on JGraph implementation");
-      Stopwatch buildStopwatch = Stopwatch.createStarted();
-      JGraphSimpleGraphImpl graph = JGraphSimpleGraphImpl.createRandomGraph(random, numberOfVertices, loadFactor);
-      buildStopwatch.stop();
-      statistics.jgraphBuildStatistics().addValue(buildStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
-      Stopwatch calculationStopwatch = Stopwatch.createStarted();
-      graph.createConnectedComponents();
-      calculationStopwatch.stop();
-      statistics.jgraphCalculationStatistics().addValue(calculationStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
-      percentageUpdater.increase();
-    }
+  private void runNeighborsMatrixCycle(int cycle,
+                                       int numberOfVertices,
+                                       double loadFactor,
+                                       boolean shouldRunNeighborsMatrix,
+                                       PercentageUpdater percentageUpdater,
+                                       ConnectedComponentsBenchmarkStatistics statistics,
+                                       Random random) {
     if (shouldRunNeighborsMatrix && shouldRun) {
       controller.updateStatus("Running benchmark cycle " + cycle + " on Neighbors Matrix implementation");
       Stopwatch buildStopwatch = Stopwatch.createStarted();
@@ -163,6 +168,27 @@ public class ConnectedComponentsRunner implements Callable<ConnectedComponentsBe
       calculationStopwatch.stop();
       statistics.neighborsMatrixCalculationStatistics()
                 .addValue(calculationStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
+      percentageUpdater.increase();
+    }
+  }
+
+  private void runJgraphCycle(int cycle,
+                              int numberOfVertices,
+                              double loadFactor,
+                              boolean shouldRunJGraph,
+                              PercentageUpdater percentageUpdater,
+                              ConnectedComponentsBenchmarkStatistics statistics,
+                              Random random) {
+    if (shouldRunJGraph && shouldRun) {
+      controller.updateStatus("Running benchmark cycle " + cycle + " on JGraph implementation");
+      Stopwatch buildStopwatch = Stopwatch.createStarted();
+      JGraphSimpleGraphImpl graph = JGraphSimpleGraphImpl.createRandomGraph(random, numberOfVertices, loadFactor);
+      buildStopwatch.stop();
+      statistics.jgraphBuildStatistics().addValue(buildStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
+      Stopwatch calculationStopwatch = Stopwatch.createStarted();
+      graph.createConnectedComponents();
+      calculationStopwatch.stop();
+      statistics.jgraphCalculationStatistics().addValue(calculationStopwatch.elapsed(TimeUnit.NANOSECONDS) / NANOS);
       percentageUpdater.increase();
     }
   }
