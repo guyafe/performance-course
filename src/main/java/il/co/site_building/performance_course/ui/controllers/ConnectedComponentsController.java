@@ -23,6 +23,8 @@ import org.apache.logging.log4j.Logger;
 
 public class ConnectedComponentsController {
   private final Logger logger = LogManager.getRootLogger();
+  private static final boolean DISABLE = true;
+  private static final boolean ENABLE = false;
 
   @FXML public IntegerTextFieldControl numberOfVerticesTextField;
   @FXML public AnchorPane connectedComponentsPane;
@@ -39,6 +41,7 @@ public class ConnectedComponentsController {
   @FXML public TableColumn headersColumn;
   @FXML public TableColumn jgraphColumn;
   @FXML public TableColumn neighborsMatrixColumn;
+  @FXML public Button stopSimulationButton;
   private final ExecutorService workersThreadPool = Executors.newCachedThreadPool();
 
   public void runConnectedComponentsSimulation() {
@@ -54,14 +57,15 @@ public class ConnectedComponentsController {
                                                                      loadFactor,
                                                                      shouldRunJGraph,
                                                                      shouldRunNeighborsMatrix, this);
+    stopSimulationButton.onMouseClickedProperty().set(event -> runner.stop());
     Future<Void> connectedComponentsFuture = workersThreadPool.submit(runner);
   }
 
-  public void updateStatus(String status){
+  public void updateStatus(String status) {
     Platform.runLater(() -> statusLabel.setText(status));
   }
 
-  public void updateProgressBar(double progress){
+  public void updateProgressBar(double progress) {
     DecimalFormat df = new DecimalFormat();
     df.setMaximumFractionDigits(2);
     Platform.runLater(() -> {
@@ -70,7 +74,26 @@ public class ConnectedComponentsController {
     });
   }
 
+  public void reportStart() {
+    Platform.runLater(() -> {
+      runSimulationButton.setDisable(DISABLE);
+      stopSimulationButton.setDisable(ENABLE);
+    });
+  }
 
+  public void reportStopping() {
+    Platform.runLater(() -> {
+      runSimulationButton.setDisable(DISABLE);
+      stopSimulationButton.setDisable(DISABLE);
+    });
+  }
+
+  public void reportStop() {
+    Platform.runLater(() -> {
+      runSimulationButton.setDisable(ENABLE);
+      stopSimulationButton.setDisable(DISABLE);
+    });
+  }
 
 
 }

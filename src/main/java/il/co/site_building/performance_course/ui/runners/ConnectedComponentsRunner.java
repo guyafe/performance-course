@@ -1,16 +1,15 @@
 package il.co.site_building.performance_course.ui.runners;
 
-import il.co.site_building.performance_course.graph.JGraphSimpleGraphImpl;
-import il.co.site_building.performance_course.graph.NeighborsMatrixGraph;
-import il.co.site_building.performance_course.ui.PercentageUpdater;
-import il.co.site_building.performance_course.ui.controllers.ConnectedComponentsController;
-import javafx.application.Platform;
-
 import java.util.Random;
 import java.util.concurrent.Callable;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import il.co.site_building.performance_course.graph.JGraphSimpleGraphImpl;
+import il.co.site_building.performance_course.graph.NeighborsMatrixGraph;
+import il.co.site_building.performance_course.ui.PercentageUpdater;
+import il.co.site_building.performance_course.ui.controllers.ConnectedComponentsController;
 
 public class ConnectedComponentsRunner implements Callable<Void> {
   private final Logger logger = LogManager.getRootLogger();
@@ -39,7 +38,8 @@ public class ConnectedComponentsRunner implements Callable<Void> {
     this.controller = controller;
   }
 
-  @Override public Void call() throws Exception {
+  @Override public Void call() {
+    controller.reportStart();
     logger.info("Running simulation....");
     logger.info("Number of warmup cycles: {}", numberOfWarmupCycles);
     logger.info("Number of benchmark cycles: {}", numberOfBenchmarkCycles);
@@ -47,6 +47,7 @@ public class ConnectedComponentsRunner implements Callable<Void> {
     logger.info("Should run JGraph algorithm: {}", shouldRunJGraph);
     logger.info("Should run Neighbors Matrix algorithm: {}", shouldRunNeighborsMatrix);
     runConnectedComponentsSimulation();
+    controller.reportStop();
     return null;
   }
 
@@ -66,7 +67,7 @@ public class ConnectedComponentsRunner implements Callable<Void> {
     int totalAlgorithmsRuns = (numberOfWarmupCycles + numberOfBenchmarkCycles) * numberOfAlgorithms;
     double percentageIncrease = 100.0 / totalAlgorithmsRuns;
     PercentageUpdater percentageUpdater = new PercentageUpdater(percentageIncrease, controller);
-    for (int cycle = 1; cycle <= numberOfWarmupCycles; cycle++) {
+    for (int cycle = 1; cycle <= numberOfWarmupCycles && shouldRun; cycle++) {
       runWarmupCycle(cycle,
                      numberOfVertices,
                      loadFactor,
@@ -74,8 +75,8 @@ public class ConnectedComponentsRunner implements Callable<Void> {
                      shouldRunNeighborsMatrix,
                      percentageUpdater);
     }
-    for (int cycle = 1; cycle <= numberOfBenchmarkCycles; cycle++) {
-      rnBenchmarkCycle(cycle,
+    for (int cycle = 1; cycle <= numberOfBenchmarkCycles && shouldRun; cycle++) {
+      runBenchmarkCycle(cycle,
                        numberOfVertices,
                        loadFactor,
                        shouldRunJGraph,
@@ -92,13 +93,13 @@ public class ConnectedComponentsRunner implements Callable<Void> {
                               boolean shouldRunNeighborsMatrix,
                               PercentageUpdater percentageUpdater) {
     Random random = new Random();
-    if (shouldRunJGraph) {
+    if (shouldRunJGraph && shouldRun) {
       controller.updateStatus("Running warmup cycle " + cycle + " on JGraph implementation");
       JGraphSimpleGraphImpl graph = JGraphSimpleGraphImpl.createRandomGraph(random, numberOfVertices, loadFactor);
       graph.createConnectedComponents();
       percentageUpdater.increase();
     }
-    if (shouldRunNeighborsMatrix) {
+    if (shouldRunNeighborsMatrix && shouldRun) {
       controller.updateStatus("Running warmup cycle " + cycle + " on Neighbors Matrix implementation");
       NeighborsMatrixGraph graph = NeighborsMatrixGraph.createRandomGraph(random, numberOfVertices, loadFactor);
       graph.createConnectedComponents();
@@ -106,24 +107,29 @@ public class ConnectedComponentsRunner implements Callable<Void> {
     }
   }
 
-  private void rnBenchmarkCycle(int cycle,
+  private void runBenchmarkCycle(int cycle,
                                 int numberOfVertices,
                                 double loadFactor,
                                 boolean shouldRunJGraph,
                                 boolean shouldRunNeighborsMatrix,
                                 PercentageUpdater percentageUpdater) {
     Random random = new Random();
-    if (shouldRunJGraph) {
+    if (shouldRunJGraph && shouldRun) {
       controller.updateStatus("Running benchmark cycle " + cycle + " on JGraph implementation");
       JGraphSimpleGraphImpl graph = JGraphSimpleGraphImpl.createRandomGraph(random, numberOfVertices, loadFactor);
       graph.createConnectedComponents();
       percentageUpdater.increase();
     }
-    if (shouldRunNeighborsMatrix) {
+    if (shouldRunNeighborsMatrix && shouldRun) {
       controller.updateStatus("Running benchmark cycle " + cycle + " on Neighbors Matrix implementation");
       NeighborsMatrixGraph graph = NeighborsMatrixGraph.createRandomGraph(random, numberOfVertices, loadFactor);
       graph.createConnectedComponents();
       percentageUpdater.increase();
     }
+  }
+
+  public void stop(){
+    controller.reportStopping();
+    shouldRun = false;
   }
 }
