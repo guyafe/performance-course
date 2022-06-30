@@ -74,11 +74,11 @@ public class ConnectedComponentsBenchmarking {
     double neighborsMatrix5Percentile = benchmarkStatistics.buildStatistics().getPercentile(5);
     double neighborsMatrix50Percentile = benchmarkStatistics.buildStatistics().getPercentile(50);
     double neighborsMatrix95Percentile = benchmarkStatistics.buildStatistics().getPercentile(95);
-    double neighborsMatrixConnectedComponentsAvg = benchmarkStatistics.connectedComponents().getMean();
-    double neighborsMatrixConnectedComponentsStd = Math.sqrt(benchmarkStatistics.connectedComponents().getVariance());
-    double neighborsMatrixConnectedComponents5Percentile = benchmarkStatistics.connectedComponents().getPercentile(5);
-    double neighborsMatrixConnectedComponents50Percentile = benchmarkStatistics.connectedComponents().getPercentile(50);
-    double neighborsMatrixConnectedComponents95Percentile = benchmarkStatistics.connectedComponents().getPercentile(95);
+    double neighborsMatrixConnectedComponentsAvg = benchmarkStatistics.connectedComponentsStatistics().getMean();
+    double neighborsMatrixConnectedComponentsStd = Math.sqrt(benchmarkStatistics.connectedComponentsStatistics().getVariance());
+    double neighborsMatrixConnectedComponents5Percentile = benchmarkStatistics.connectedComponentsStatistics().getPercentile(5);
+    double neighborsMatrixConnectedComponents50Percentile = benchmarkStatistics.connectedComponentsStatistics().getPercentile(50);
+    double neighborsMatrixConnectedComponents95Percentile = benchmarkStatistics.connectedComponentsStatistics().getPercentile(95);
     System.out.println(graphName + " average build time: " + neighborsMatrixBuildAvg);
     System.out.println(graphName + " std build time: " + neighborsMatrixBuildStd);
     System.out.println(
