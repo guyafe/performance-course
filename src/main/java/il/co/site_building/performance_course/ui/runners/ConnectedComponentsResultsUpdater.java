@@ -32,6 +32,6 @@ public class ConnectedComponentsResultsUpdater implements Runnable {
       logger.error("Unable to finish algorithm");
       logger.error(ExceptionUtils.getStackTrace(e));
     }
-    controller.updateTable(statistics);
+    controller.updateUiResults(statistics);
   }
 }

@@ -1,17 +1,24 @@
 package il.co.site_building.performance_course.ui.controllers;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.concurrent.Future;
 
 import il.co.site_building.performance_course.graph.data_structures.ConnectedComponentsBenchmarkStatistics;
 import il.co.site_building.performance_course.ui.runners.ConnectedComponentsResultsUpdater;
 import il.co.site_building.performance_course.ui.runners.ConnectedComponentsRunner;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 public class ConnectedComponentsController {
   private static final boolean DISABLE = true;
   private static final boolean ENABLE = false;
+  private static final String BUILD_TIME = "Build Time";
+  private static final String CALCULATION_TIME = "Calculation Time";
+  private static final String JGRAPH = "JGraph";
+  private static final String NEIGHBORS_MATRIX_GRAPH = "Neighbors Matrix Graph";
 
   private final PerformanceCourseUiController parentController;
 
@@ -27,6 +34,8 @@ public class ConnectedComponentsController {
         "neighborsMatrixBuildResult"));
     parentController.neighborsMatrixCalculationColumn.setCellValueFactory(new PropertyValueFactory<>(
         "neighborsMatrixCalculationResult"));
+    parentController.algorithmsCategoryAxis.setCategories(FXCollections.observableArrayList(Arrays.asList(JGRAPH,
+                                                                                                          NEIGHBORS_MATRIX_GRAPH)));
   }
 
 
@@ -66,6 +75,7 @@ public class ConnectedComponentsController {
   public void reportStart() {
     Platform.runLater(() -> {
       parentController.resultsTable.getItems().clear();
+      parentController.resultsChart.getData().clear();
       parentController.runSimulationButton.setDisable(DISABLE);
       parentController.stopSimulationButton.setDisable(ENABLE);
     });
@@ -85,7 +95,32 @@ public class ConnectedComponentsController {
     });
   }
 
-  public void updateTable(ConnectedComponentsBenchmarkStatistics statistics) {
+  public void updateUiResults(ConnectedComponentsBenchmarkStatistics statistics) {
+    updateTable(statistics);
+    updateChart(statistics);
+  }
+
+  private void updateChart(ConnectedComponentsBenchmarkStatistics statistics) {
+    XYChart.Series<String, Double> buildTimSeries = new XYChart.Series<>();
+    buildTimSeries.getData().add(new XYChart.Data<>(JGRAPH, statistics.jgraphBuildStatistics().getMean()));
+    buildTimSeries.getData()
+                  .add(new XYChart.Data<>(NEIGHBORS_MATRIX_GRAPH,
+                                          statistics.neighborsMatrixBuildStatistics().getMean()));
+    buildTimSeries.setName(BUILD_TIME);
+    XYChart.Series<String, Double> calculationTimeSeries = new XYChart.Series<>();
+    calculationTimeSeries.getData()
+                         .add(new XYChart.Data<>(JGRAPH, statistics.jgraphCalculationStatistics().getMean()));
+    calculationTimeSeries.getData()
+                         .add(new XYChart.Data<>(NEIGHBORS_MATRIX_GRAPH,
+                                                 statistics.neighborsMatrixCalculationStatistics().getMean()));
+    calculationTimeSeries.setName(CALCULATION_TIME);
+    Platform.runLater(() -> {
+      parentController.resultsChart.getData().add(buildTimSeries);
+      parentController.resultsChart.getData().add(calculationTimeSeries);
+    });
+  }
+
+  private void updateTable(ConnectedComponentsBenchmarkStatistics statistics) {
     Platform.runLater(() -> {
       parentController.resultsTable.getItems()
                                    .add(new ConnectedComponentsResultRecord("Mean",
@@ -126,15 +161,15 @@ public class ConnectedComponentsController {
                                                                             statistics.neighborsMatrixCalculationStatistics()
                                                                                       .getPercentile(50)));
       parentController.resultsTable.getItems()
-                                  .add(new ConnectedComponentsResultRecord("95 percentile",
-                                                                           statistics.jgraphBuildStatistics()
-                                                                                     .getPercentile(95),
-                                                                           statistics.jgraphCalculationStatistics()
-                                                                                     .getPercentile(95),
-                                                                           statistics.neighborsMatrixBuildStatistics()
-                                                                                     .getPercentile(95),
-                                                                           statistics.neighborsMatrixCalculationStatistics()
-                                                                                     .getPercentile(95)));
+                                   .add(new ConnectedComponentsResultRecord("95 percentile",
+                                                                            statistics.jgraphBuildStatistics()
+                                                                                      .getPercentile(95),
+                                                                            statistics.jgraphCalculationStatistics()
+                                                                                      .getPercentile(95),
+                                                                            statistics.neighborsMatrixBuildStatistics()
+                                                                                      .getPercentile(95),
+                                                                            statistics.neighborsMatrixCalculationStatistics()
+                                                                                      .getPercentile(95)));
     });
   }
 

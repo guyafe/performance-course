@@ -9,6 +9,8 @@ import il.co.site_building.ui_controls.IntegerTextFieldControl;
 import il.co.site_building.ui_controls.NumericDoubleFieldControl;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.StackedBarChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -36,7 +38,9 @@ public class PerformanceCourseUiController implements Initializable {
   @FXML public TableColumn<String, Double> neighborsMatrixBuildColumn;
   @FXML public TableColumn<String, Double> neighborsMatrixCalculationColumn;
   @FXML public Button stopSimulationButton;
-  public final ExecutorService workersThreadPool = Executors.newCachedThreadPool();
+  @FXML public StackedBarChart<String, Double> resultsChart;
+  @FXML public CategoryAxis algorithmsCategoryAxis;
+  protected final ExecutorService workersThreadPool = Executors.newCachedThreadPool();
   private final ConnectedComponentsController connectedComponentsController;
 
   public PerformanceCourseUiController() {
