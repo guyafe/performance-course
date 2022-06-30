@@ -14,7 +14,7 @@ import il.co.site_building.performance_course.graph.JGraphSimpleGraphImpl;
 import il.co.site_building.performance_course.graph.NeighborsMatrixGraph;
 import il.co.site_building.performance_course.graph.data_structures.ConnectedComponentsBenchmarkStatistics;
 import il.co.site_building.performance_course.ui.PercentageUpdater;
-import il.co.site_building.performance_course.ui.controllers.ConnectedComponentsController;
+import il.co.site_building.performance_course.ui.controllers.PerformanceCourseUiController;
 
 public class ConnectedComponentsRunner implements Callable<ConnectedComponentsBenchmarkStatistics> {
 
@@ -27,7 +27,7 @@ public class ConnectedComponentsRunner implements Callable<ConnectedComponentsBe
   private final double loadFactor;
   private final boolean shouldRunJGraph;
   private final boolean shouldRunNeighborsMatrix;
-  private final ConnectedComponentsController controller;
+  private final PerformanceCourseUiController controller;
   private boolean shouldRun = false;
 
   public ConnectedComponentsRunner(int numberOfVertices,
@@ -36,7 +36,7 @@ public class ConnectedComponentsRunner implements Callable<ConnectedComponentsBe
                                    double loadFactor,
                                    boolean shouldRunJGraph,
                                    boolean shouldRunNeighborsMatrix,
-                                   ConnectedComponentsController controller) {
+                                   PerformanceCourseUiController controller) {
     this.numberOfVertices = numberOfVertices;
     this.numberOfWarmupCycles = numberOfWarmupCycles;
     this.numberOfBenchmarkCycles = numberOfBenchmarkCycles;

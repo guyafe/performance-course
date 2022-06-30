@@ -1,10 +1,8 @@
 package il.co.site_building.performance_course.ui.runners;
 
 import il.co.site_building.performance_course.graph.data_structures.ConnectedComponentsBenchmarkStatistics;
-import il.co.site_building.performance_course.graph.data_structures.GraphBenchmarkStatistics;
-import il.co.site_building.performance_course.ui.controllers.ConnectedComponentsController;
+import il.co.site_building.performance_course.ui.controllers.PerformanceCourseUiController;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -15,10 +13,10 @@ public class ConnectedComponentsResultsUpdater implements Runnable {
   private final Logger logger = LogManager.getRootLogger();
 
   private final Future<ConnectedComponentsBenchmarkStatistics> future;
-  private final ConnectedComponentsController controller;
+  private final PerformanceCourseUiController controller;
 
   public ConnectedComponentsResultsUpdater(Future<ConnectedComponentsBenchmarkStatistics> future,
-                                           ConnectedComponentsController controller) {
+                                           PerformanceCourseUiController controller) {
     this.future = future;
     this.controller = controller;
   }

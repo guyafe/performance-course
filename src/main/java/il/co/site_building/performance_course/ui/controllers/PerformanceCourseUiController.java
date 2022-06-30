@@ -27,7 +27,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 
-public class ConnectedComponentsController implements Initializable {
+public class PerformanceCourseUiController implements Initializable {
   private final Logger logger = LogManager.getRootLogger();
   private static final boolean DISABLE = true;
   private static final boolean ENABLE = false;

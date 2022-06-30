@@ -2,16 +2,16 @@ package il.co.site_building.performance_course.ui;
 
 import java.text.DecimalFormat;
 
-import il.co.site_building.performance_course.ui.controllers.ConnectedComponentsController;
+import il.co.site_building.performance_course.ui.controllers.PerformanceCourseUiController;
 
 public class PercentageUpdater {
 
   private double percentage = 0;
   private final double increase;
-  private final ConnectedComponentsController controller;
+  private final PerformanceCourseUiController controller;
 
   public PercentageUpdater(double increase,
-                           ConnectedComponentsController controller) {
+                           PerformanceCourseUiController controller) {
     this.increase = increase;
     this.controller = controller;
   }
